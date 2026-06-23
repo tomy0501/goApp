@@ -13,6 +13,15 @@ func main() {
 			"message": "pong",
 		})
 	})
+	allowedOrigins := os.Getenv("ALLOWED_ORIGINS")
+	if allowedOrigins != "" {
+		newApp.Use(func(c *gin.Context) {
+			c.Header("Access-Control-Allow-Origin", allowedOrigins)
+			c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			c.Next()
+		})
+	}
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080" // default port if not specified
