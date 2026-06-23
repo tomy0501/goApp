@@ -8,11 +8,7 @@ import (
 
 func main() {
 	newApp := gin.Default()
-	newApp.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+
 	allowedOrigins := os.Getenv("ALLOWED_ORIGINS")
 	if allowedOrigins != "" {
 		newApp.Use(func(c *gin.Context) {
@@ -26,5 +22,10 @@ func main() {
 	if port == "" {
 		port = "8080" // default port if not specified
 	}
+	newApp.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
 	newApp.Run(":" + port) // listen and serve on
 }
