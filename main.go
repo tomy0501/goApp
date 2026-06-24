@@ -5,9 +5,9 @@ import (
 	"log"
 	"os"
 
-	_ "github.com/go-sql-driver/mysql"
-
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 )
 
@@ -35,6 +35,24 @@ func main() {
 	if port == "" {
 		port = "8080" // default port if not specified
 	}
+	redisAddr := os.Getenv("REDIS_ADDR")
+	redisPassword := os.Getenv("REDIS_PASSWORD")
+	if redisAddr == "" {
+		redisAddr = "localhost:6379" // default Redis address if not specified
+	}
+	if redisPassword == "" {
+		redisPassword = "" // default Redis password if not specified
+	}
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     redisAddr,
+		Password: redisPassword,
+	})
+	defer redisClient.Close()
+	_, err = redisClient.Ping().Result()
+	if err != nil {
+		log.Fatal("Error connecting to Redis: %v", err)
+	}
+	log.Println("Connected to Redis at", redisAddr)
 	connectionString := os.Getenv("DB_CONNECTION_STRING")
 	if connectionString == "" {
 		connectionString = "user:password@tcp(localhost:3306)/dbname" // default connection string if not specified
