@@ -50,16 +50,16 @@ func main() {
 	defer redisClient.Close()
 	_, err = redisClient.Ping().Result()
 	if err != nil {
-		log.Fatal("Error connecting to Redis: %v", err)
+		log.Printf("Error connecting to Redis: %v", err)
 	}
-	log.Println("Connected to Redis at", redisAddr)
+	log.Printf("Connected to Redis at %s", redisAddr)
 	connectionString := os.Getenv("DB_CONNECTION_STRING")
 	if connectionString == "" {
 		connectionString = "user:password@tcp(localhost:3306)/dbname" // default connection string if not specified
 	}
 	db, err := sql.Open("mysql", connectionString)
 	if err != nil {
-		log.Fatal("Error connecting to database: %v", err)
+		log.Printf("Error connecting to database: %v", err)
 	}
 	defer db.Close()
 
