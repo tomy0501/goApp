@@ -47,11 +47,13 @@ func main() {
 		Addr:     redisAddr,
 		Password: redisPassword,
 	})
-	defer redisClient.Close()
 	_, err = redisClient.Ping().Result()
 	if err != nil {
 		log.Printf("Error connecting to Redis: %v", err)
+		os.Exit(1)
 	}
+	defer redisClient.Close()
+	redisClient.Set("test_key", "test_value", 0)
 	log.Printf("Connected to Redis at %s", redisAddr)
 	connectionString := os.Getenv("DB_CONNECTION_STRING")
 	if connectionString == "" {
@@ -60,9 +62,9 @@ func main() {
 	db, err := sql.Open("mysql", connectionString)
 	if err != nil {
 		log.Printf("Error connecting to database: %v", err)
+		os.Exit(1)
 	}
 	defer db.Close()
-
 	newApp.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
