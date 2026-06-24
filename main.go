@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"log"
 	"os"
@@ -46,6 +47,9 @@ func main() {
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     redisAddr,
 		Password: redisPassword,
+		TLSConfig: &tls.Config{
+			MinVersion: tls.VersionTLS12,
+		},
 	})
 	_, err = redisClient.Ping().Result()
 	if err != nil {
