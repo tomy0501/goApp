@@ -79,7 +79,7 @@ func main() {
 	tlsConfig := &tls.Config{
 		MinVersion: tls.VersionTLS12,
 	}
-	mysql.RegisterTLSConfig("custom", tlsConfig)
+	mysql.RegisterTLSConfig("custom-tls", tlsConfig)
 	db, err := sql.Open("mysql", connectionString)
 	if err != nil {
 		log.Printf("Error connecting to database: %v", err)
