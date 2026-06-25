@@ -73,6 +73,9 @@ func main() {
 	}
 	defer db.Close()
 	newApp.GET("/ping", func(c *gin.Context) {
+		session := sessions.Default(c)
+		session.Set("ping", "pong")
+		session.Save()
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
