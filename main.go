@@ -1,13 +1,13 @@
 package main
 
 import (
-	"crypto/tls"
 	"database/sql"
 	"log"
 	"os"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 )
@@ -38,27 +38,25 @@ func main() {
 	}
 	redisAddr := os.Getenv("REDIS_ADDR")
 	redisPassword := os.Getenv("REDIS_PASSWORD")
+	sessionSecret := os.Getenv("SESSION_SECRET")
 	if redisAddr == "" {
 		redisAddr = "localhost:6379" // default Redis address if not specified
 	}
 	if redisPassword == "" {
 		redisPassword = "" // default Redis password if not specified
 	}
-	redisClient := redis.NewClient(&redis.Options{
-		Addr:     redisAddr,
-		Password: redisPassword,
-		TLSConfig: &tls.Config{
-			MinVersion: tls.VersionTLS12,
-		},
-	})
-	_, err = redisClient.Ping().Result()
+	if sessionSecret == "" {
+		sessionSecret = "secret" // default session secret if not specified
+	}
+
+	store, err := redis.NewStore(10, "tcp", redisAddr, redisPassword, sessionSecret)
 	if err != nil {
-		log.Printf("Error connecting to Redis: %v", err)
+		log.Printf("Error creating Redis store: %v", err)
 		os.Exit(1)
 	}
-	defer redisClient.Close()
-	redisClient.Set("test_key", "test_value", 0)
+
 	log.Printf("Connected to Redis at %s", redisAddr)
+	newApp.Use(sessions.Sessions("mysession", store))
 	connectionString := os.Getenv("DB_CONNECTION_STRING")
 	if connectionString == "" {
 		connectionString = "user:password@tcp(localhost:3306)/dbname" // default connection string if not specified
