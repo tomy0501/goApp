@@ -103,7 +103,7 @@ func main() {
 		})
 	})
 	newApp.GET("/", func(c *gin.Context) {
-		getUserSQL := "SELECT id, username, email FROM user WHERE id = ? LIMIT 1"
+		getUserSQL := "SELECT user_id, username, email FROM user WHERE user_id = ? LIMIT 1"
 		result, err := db.Query(getUserSQL, 1) // Example: Fetch user with ID 1
 		if err != nil {
 			log.Printf("Error querying database: %v", err)
