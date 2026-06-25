@@ -13,6 +13,12 @@ import (
 	"github.com/joho/godotenv"
 )
 
+type User struct {
+	ID       int    `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+}
+
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -79,6 +85,26 @@ func main() {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
+	})
+	newApp.GET("/", func(c *gin.Context) {
+		getUserSQL := "SELECT id, username, email FROM user WHERE id = ? LIMIT 1"
+		result, err := db.Query(getUserSQL, 1) // Example: Fetch user with ID 1
+		if err != nil {
+			log.Printf("Error querying database: %v", err)
+			c.JSON(500, gin.H{"error": "Internal Server Error"})
+			return
+		}
+		defer result.Close()
+		var user User
+		if result.Next() {
+			err := result.Scan(&user.ID, &user.Username, &user.Email)
+			if err != nil {
+				log.Printf("Error scanning user data: %v", err)
+				c.JSON(500, gin.H{"error": "Internal Server Error"})
+				return
+			}
+		}
+		c.JSON(200, user)
 	})
 	newApp.Run(":" + port) // listen and serve on
 }
