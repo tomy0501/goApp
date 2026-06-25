@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"database/sql"
 	"log"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
+	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 	redigo "github.com/gomodule/redigo/redis"
 	"github.com/joho/godotenv"
@@ -74,6 +76,10 @@ func main() {
 	if connectionString == "" {
 		connectionString = "user:password@tcp(localhost:3306)/dbname" // default connection string if not specified
 	}
+	tlsConfig := &tls.Config{
+		MinVersion: tls.VersionTLS12,
+	}
+	mysql.RegisterTLSConfig("custom", tlsConfig)
 	db, err := sql.Open("mysql", connectionString)
 	if err != nil {
 		log.Printf("Error connecting to database: %v", err)
