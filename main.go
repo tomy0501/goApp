@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"database/sql"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
@@ -37,6 +38,7 @@ func main() {
 	allowedOrigins := os.Getenv("ALLOWED_ORIGINS")
 	if allowedOrigins != "" {
 		newApp.Use(func(c *gin.Context) {
+			c.SetSameSite(http.SameSiteNoneMode)
 			c.Header("Access-Control-Allow-Origin", allowedOrigins)
 			c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 			c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
