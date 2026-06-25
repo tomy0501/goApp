@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"log"
 	"os"
+	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
@@ -78,6 +80,14 @@ func main() {
 		os.Exit(1)
 	}
 	defer db.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := db.PingContext(ctx); err != nil {
+		log.Printf("Error pinging database: %v", err)
+		os.Exit(1)
+	}
 	newApp.GET("/ping", func(c *gin.Context) {
 		session := sessions.Default(c)
 		session.Set("ping", "pong")
