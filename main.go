@@ -9,6 +9,7 @@ import (
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
+	redigo "github.com/gomodule/redigo/redis"
 	"github.com/joho/godotenv"
 )
 
@@ -48,8 +49,12 @@ func main() {
 	if sessionSecret == "" {
 		sessionSecret = "secret" // default session secret if not specified
 	}
-
-	store, err := redis.NewStore(10, "tcp", redisAddr, redisPassword, sessionSecret)
+	pool := &redigo.Pool{
+		Dial: func() (redigo.Conn, error) {
+			return redigo.Dial("tcp", redisAddr, redigo.DialUseTLS(true), redigo.DialPassword(redisPassword))
+		},
+	}
+	store, err := redis.NewStoreWithPool(pool, []byte(sessionSecret))
 	if err != nil {
 		log.Printf("Error creating Redis store: %v", err)
 		os.Exit(1)
