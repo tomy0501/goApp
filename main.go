@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"database/sql"
 	"log"
-	"net/http"
 	"os"
 	"time"
 
@@ -35,17 +34,6 @@ func main() {
 	}
 	newApp := gin.Default()
 
-	allowedOrigins := os.Getenv("ALLOWED_ORIGINS")
-	if allowedOrigins != "" {
-		newApp.Use(func(c *gin.Context) {
-			c.SetSameSite(http.SameSiteNoneMode)
-			c.Header("Access-Control-Allow-Origin", allowedOrigins)
-			c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-			c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
-			c.Header("Access-Control-Allow-Credentials", "true")
-			c.Next()
-		})
-	}
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080" // default port if not specified
@@ -105,7 +93,7 @@ func main() {
 			"message": "pong",
 		})
 	})
-	newApp.GET("/", func(c *gin.Context) {
+	newApp.GET("/user", func(c *gin.Context) {
 		getUserSQL := "SELECT user_id, username, email FROM user WHERE user_id = ? LIMIT 1"
 		result, err := db.Query(getUserSQL, 1) // Example: Fetch user with ID 1
 		if err != nil {
