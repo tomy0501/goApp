@@ -132,7 +132,7 @@ func main() {
 		c.JSON(200, user)
 	})
 	newApp.GET("/testJWT", func(c *gin.Context) {
-		token, err := c.Cookie("token")
+		token, err := c.Cookie("accessToken")
 		if err != nil {
 			c.JSON(403, gin.H{"error": "Unauthorized"})
 			return
