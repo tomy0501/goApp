@@ -59,7 +59,7 @@ func main() {
 		sessionSecret = "secret" // default session secret if not specified
 	}
 
-	pemString, err := os.ReadFile("/public.pem")
+	pemString, err := os.ReadFile("public.pem")
 	if err != nil {
 		log.Fatalf("Error reading public key: %v", err)
 	}
