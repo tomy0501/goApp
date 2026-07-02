@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"database/sql"
+	"errors"
 	"log"
 	"os"
 	"time"
@@ -13,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/golang-jwt/jwt/v5"
 	redigo "github.com/gomodule/redigo/redis"
 	"github.com/joho/godotenv"
 )
@@ -21,6 +23,12 @@ type User struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
+}
+
+type CustomClaims struct {
+	jwt.RegisteredClaims
+	Username string `json:"username"`
+	Role     string `json:"role"`
 }
 
 func main() {
@@ -49,6 +57,16 @@ func main() {
 	}
 	if sessionSecret == "" {
 		sessionSecret = "secret" // default session secret if not specified
+	}
+
+	pemString, err := os.ReadFile("/public.pem")
+	if err != nil {
+		log.Fatalf("Error reading public key: %v", err)
+	}
+
+	publicKey, err := jwt.ParseRSAPublicKeyFromPEM(pemString)
+	if err != nil {
+		log.Fatalf("Error parsing public key: %v", err)
 	}
 	pool := &redigo.Pool{
 		Dial: func() (redigo.Conn, error) {
@@ -112,6 +130,38 @@ func main() {
 			}
 		}
 		c.JSON(200, user)
+	})
+	newApp.GET("/testJWT", func(c *gin.Context) {
+		token, err := c.Cookie("token")
+		if err != nil {
+			c.JSON(401, gin.H{"error": "Unauthorized"})
+			return
+		}
+		if token == "" {
+			c.JSON(401, gin.H{"error": "Unauthorized"})
+			return
+		}
+
+		tokenClaims, err := jwt.ParseWithClaims(token, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+				return nil, jwt.ErrSignatureInvalid
+			}
+			return publicKey, nil
+		})
+		if err != nil {
+			if errors.Is(err, jwt.ErrTokenExpired) {
+				c.JSON(402, gin.H{"error": "Token expired"})
+				return
+			} else {
+				c.JSON(401, gin.H{"error": "Unauthorized"})
+			}
+		}
+
+		if claims, ok := tokenClaims.Claims.(*CustomClaims); ok && tokenClaims.Valid {
+			c.JSON(200, gin.H{"message": "Valid JWT token", "username": claims.Username, "role": claims.Role})
+		} else {
+			c.JSON(401, gin.H{"error": "Unauthorized"})
+		}
 	})
 	newApp.Run(":" + port) // listen and serve on
 }
