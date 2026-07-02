@@ -134,11 +134,11 @@ func main() {
 	newApp.GET("/testJWT", func(c *gin.Context) {
 		token, err := c.Cookie("token")
 		if err != nil {
-			c.JSON(401, gin.H{"error": "Unauthorized"})
+			c.JSON(403, gin.H{"error": "Unauthorized"})
 			return
 		}
 		if token == "" {
-			c.JSON(401, gin.H{"error": "Unauthorized"})
+			c.JSON(403, gin.H{"error": "Unauthorized"})
 			return
 		}
 
@@ -150,17 +150,17 @@ func main() {
 		})
 		if err != nil {
 			if errors.Is(err, jwt.ErrTokenExpired) {
-				c.JSON(402, gin.H{"error": "Token expired"})
+				c.JSON(401, gin.H{"error": "Token expired"})
 				return
 			} else {
-				c.JSON(401, gin.H{"error": "Unauthorized"})
+				c.JSON(403, gin.H{"error": "Unauthorized"})
 			}
 		}
 
 		if claims, ok := tokenClaims.Claims.(*CustomClaims); ok && tokenClaims.Valid {
 			c.JSON(200, gin.H{"message": "Valid JWT token", "username": claims.Username, "role": claims.Role})
 		} else {
-			c.JSON(401, gin.H{"error": "Unauthorized"})
+			c.JSON(403, gin.H{"error": "Unauthorized"})
 		}
 	})
 	newApp.Run(":" + port) // listen and serve on
