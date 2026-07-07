@@ -4,18 +4,15 @@ import (
 	"context"
 	"crypto/tls"
 	"database/sql"
-	"errors"
+	"goapp/authorize"
 	"log"
 	"os"
 	"time"
 
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang-jwt/jwt/v5"
-	redigo "github.com/gomodule/redigo/redis"
 	"github.com/joho/godotenv"
 )
 
@@ -23,12 +20,6 @@ type User struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
-}
-
-type CustomClaims struct {
-	jwt.RegisteredClaims
-	Username string `json:"username"`
-	Role     string `json:"role"`
 }
 
 func main() {
@@ -46,41 +37,7 @@ func main() {
 	if port == "" {
 		port = "8080" // default port if not specified
 	}
-	redisAddr := os.Getenv("REDIS_ADDR")
-	redisPassword := os.Getenv("REDIS_PASSWORD")
-	sessionSecret := os.Getenv("SESSION_SECRET")
-	if redisAddr == "" {
-		redisAddr = "localhost:6379" // default Redis address if not specified
-	}
-	if redisPassword == "" {
-		redisPassword = "" // default Redis password if not specified
-	}
-	if sessionSecret == "" {
-		sessionSecret = "secret" // default session secret if not specified
-	}
 
-	pemString, err := os.ReadFile("public.pem")
-	if err != nil {
-		log.Fatalf("Error reading public key: %v", err)
-	}
-
-	publicKey, err := jwt.ParseRSAPublicKeyFromPEM(pemString)
-	if err != nil {
-		log.Fatalf("Error parsing public key: %v", err)
-	}
-	pool := &redigo.Pool{
-		Dial: func() (redigo.Conn, error) {
-			return redigo.Dial("tcp", redisAddr, redigo.DialUseTLS(true), redigo.DialPassword(redisPassword))
-		},
-	}
-	store, err := redis.NewStoreWithPool(pool, []byte(sessionSecret))
-	if err != nil {
-		log.Printf("Error creating Redis store: %v", err)
-		os.Exit(1)
-	}
-
-	log.Printf("Connected to Redis at %s", redisAddr)
-	newApp.Use(sessions.Sessions("mysession", store))
 	connectionString := os.Getenv("DB_CONNECTION_STRING")
 	if connectionString == "" {
 		connectionString = "user:password@tcp(localhost:3306)/dbname" // default connection string if not specified
@@ -103,65 +60,25 @@ func main() {
 		log.Printf("Error pinging database: %v", err)
 		os.Exit(1)
 	}
-	newApp.GET("/ping", func(c *gin.Context) {
-		session := sessions.Default(c)
-		session.Set("ping", "pong")
-		session.Save()
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-	newApp.GET("/user", func(c *gin.Context) {
-		getUserSQL := "SELECT user_id, username, email FROM user WHERE user_id = ? LIMIT 1"
-		result, err := db.Query(getUserSQL, 1) // Example: Fetch user with ID 1
-		if err != nil {
-			log.Printf("Error querying database: %v", err)
-			c.JSON(500, gin.H{"error": "Internal Server Error"})
-			return
-		}
-		defer result.Close()
-		var user User
-		if result.Next() {
-			err := result.Scan(&user.ID, &user.Username, &user.Email)
-			if err != nil {
-				log.Printf("Error scanning user data: %v", err)
-				c.JSON(500, gin.H{"error": "Internal Server Error"})
-				return
-			}
-		}
-		c.JSON(200, user)
-	})
-	newApp.GET("/testJWT", func(c *gin.Context) {
-		token, err := c.Cookie("accessToken")
-		if err != nil {
-			c.JSON(403, gin.H{"error": "Unauthorized"})
-			return
-		}
-		if token == "" {
-			c.JSON(403, gin.H{"error": "Unauthorized"})
-			return
-		}
 
-		tokenClaims, err := jwt.ParseWithClaims(token, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-				return nil, jwt.ErrSignatureInvalid
-			}
-			return publicKey, nil
-		})
-		if err != nil {
-			if errors.Is(err, jwt.ErrTokenExpired) {
-				c.JSON(401, gin.H{"error": "Token expired"})
-				return
-			} else {
-				c.JSON(403, gin.H{"error": "Unauthorized"})
-			}
-		}
+	pemString, err := os.ReadFile("public.pem")
+	if err != nil {
+		log.Fatalf("Error reading public key: %v", err)
+	}
 
-		if claims, ok := tokenClaims.Claims.(*CustomClaims); ok && tokenClaims.Valid {
-			c.JSON(200, gin.H{"message": "Valid JWT token", "username": claims.Username, "role": claims.Role})
-		} else {
-			c.JSON(403, gin.H{"error": "Unauthorized"})
-		}
+	publicKey, err := jwt.ParseRSAPublicKeyFromPEM(pemString)
+	if err != nil {
+		log.Fatalf("Error parsing public key: %v", err)
+	}
+
+	authhandler := authorize.AuthHandler{
+		PublicKey: publicKey,
+	}
+
+	newApp.Use(authorize.CheckAccessToken(&authhandler))
+
+	newApp.GET("/facility", func(c *gin.Context) {
+
 	})
 	newApp.Run(":" + port) // listen and serve on
 }
