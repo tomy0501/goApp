@@ -57,7 +57,7 @@ func CheckAccessToken(h *AuthHandler) gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "internal error happen"})
 			c.Abort()
 		}
-		Role := token.Claims.(CustomClaims).Role
+		Role := token.Claims.(*CustomClaims).Role
 		c.Set("userID", userID)
 		c.Set("Role", Role)
 		c.Next()
