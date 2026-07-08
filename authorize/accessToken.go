@@ -33,6 +33,7 @@ func CheckAccessToken(h *AuthHandler) gin.HandlerFunc {
 			slog.Error("not found accessToken")
 			c.JSON(http.StatusForbidden, gin.H{"message": "accessToken is invalid"})
 			c.Abort()
+			return
 		}
 		var claims CustomClaims
 		token, err := jwt.ParseWithClaims(accessToken, &claims, func(tokenString *jwt.Token) (interface{}, error) {
@@ -44,18 +45,21 @@ func CheckAccessToken(h *AuthHandler) gin.HandlerFunc {
 		})
 
 		if err != nil || !token.Valid {
-			if err == jwt.ErrTokenExpired {
-				c.JSON(http.StatusUnauthorized, gin.H{"message": "token expired"})
+			if err == jwt.ErrTokenExpired && token.Valid {
+				c.JSON(http.StatusUnauthorized, gin.H{"message": "toyken expired"})
 				c.Abort()
+				return
 			} else {
 				c.JSON(http.StatusForbidden, gin.H{"message": "token is invalid"})
 				c.Abort()
+				return
 			}
 		}
 		userID, err := token.Claims.GetSubject()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"message": "internal error happen"})
 			c.Abort()
+			return
 		}
 		Role := token.Claims.(*CustomClaims).Role
 		c.Set("userID", userID)
