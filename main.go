@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"database/sql"
 	"goapp/authorize"
+	"goapp/logic"
 	"log"
 	"os"
 	"time"
@@ -74,11 +75,11 @@ func main() {
 	authhandler := authorize.AuthHandler{
 		PublicKey: publicKey,
 	}
-
+	userDB := logic.NewUserDB(db)
+	authLogics := logic.AuthHandlers{
+		AuthStorage: &userDB,
+	}
 	newApp.Use(authorize.CheckAccessToken(&authhandler))
-
-	newApp.GET("/facility", func(c *gin.Context) {
-
-	})
+	newApp.GET("/facility", authLogics.FacilityGetLogic)
 	newApp.Run(":" + port) // listen and serve on
 }

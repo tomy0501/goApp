@@ -1,9 +1,10 @@
 package logic
 
 import (
-	"database/sql"
 	"log/slog"
+	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
@@ -17,13 +18,13 @@ type FacilityJSON struct {
 	Phone        string `json:"phone"`
 }
 
-type Facility struct {
-	UserDB *sql.DB
-}
-
-func (f *Facility) GetFacilityInfo(userID string) (*[]FacilityJSON, error) {
-	uuid := uuid.Parse(userID)
-	row, err := f.UserDB.Query(`SELECT 
+func (d *UserDB) GetFacilityInfo(userID string) (*[]FacilityJSON, error) {
+	uuid, err := uuid.Parse(userID)
+	if err != nil {
+		slog.Error("uuid can't parse", "error", err)
+		return nil, err
+	}
+	row, err := d.userDB.Query(`SELECT 
 	facilities.name,facilities.address,facilities.phone 
 	FROM facilities INNER JOIN facility_users 
 	ON facilities.id = facility_users.facility_id 
@@ -42,4 +43,20 @@ func (f *Facility) GetFacilityInfo(userID string) (*[]FacilityJSON, error) {
 		facilities = append(facilities, facility)
 	}
 	return &facilities, nil
+}
+
+func (h *AuthHandlers) FacilityGetLogic(c *gin.Context) {
+	userID := c.GetString("userID")
+	if userID == "" {
+		slog.Error("userID is not exist")
+		c.JSON(http.StatusForbidden, gin.H{"message": "userID is invalid"})
+		return
+	}
+	facility, err := h.AuthStorage.GetFacilityInfo(userID)
+	if err != nil {
+		slog.Error("can't get facility Info", "error", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "500 Internal Error"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "getFacilit success", "value": facility})
 }
