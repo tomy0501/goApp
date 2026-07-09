@@ -20,7 +20,7 @@ type FacilityJSON struct {
 }
 
 func (d *UserDB) GetFacilityInfo(userID string) (*[]FacilityJSON, error) {
-	uuid, err := uuid.Parse(userID)
+	parsedUserID, err := uuid.Parse(userID)
 	if err != nil {
 		slog.Error("uuid can't parse", "error", err)
 		return nil, err
@@ -29,7 +29,7 @@ func (d *UserDB) GetFacilityInfo(userID string) (*[]FacilityJSON, error) {
 	facilities.id,facilities.name,facilities.address,facilities.phone 
 	FROM facilities INNER JOIN facility_users 
 	ON facilities.id = facility_users.facility_id 
-	WHERE facility_users.user_id = ?;`, uuid[:])
+	WHERE facility_users.user_id = ?;`, parsedUserID[:])
 	if err != nil {
 		slog.Error("failed in get facility", "error", err)
 		return nil, err
@@ -37,10 +37,17 @@ func (d *UserDB) GetFacilityInfo(userID string) (*[]FacilityJSON, error) {
 	var facilities []FacilityJSON
 	for row.Next() {
 		var facility FacilityJSON
-		if err := row.Scan(&facility.FacilityID, &facility.FacilityName, &facility.Address, &facility.Phone); err != nil {
+		var rawFacilityID []byte
+		if err := row.Scan(&rawFacilityID, &facility.FacilityName, &facility.Address, &facility.Phone); err != nil {
 			slog.Error("can't read facility row", "error", err)
 			return nil, err
 		}
+		parsedFacilityID, err := uuid.FromBytes(rawFacilityID)
+		if err != nil {
+			slog.Error("can't read faclity ID", "error", err)
+			return nil, err
+		}
+		facility.FacilityID = parsedFacilityID.String()
 		facilities = append(facilities, facility)
 	}
 	return &facilities, nil
