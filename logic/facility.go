@@ -13,10 +13,10 @@ type FacilityInterface interface {
 }
 
 type FacilityJSON struct {
-	FacilityName string `json:"name"`
+	FacilityName string `json:"hotelName"`
 	Address      string `json:"address"`
 	Phone        string `json:"phone"`
-	FacilityID   string `json:"id"`
+	FacilityID   string `json:"hotelID"`
 }
 
 func (d *UserDB) GetFacilityInfo(userID string) (*[]FacilityJSON, error) {
