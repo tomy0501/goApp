@@ -1,13 +1,15 @@
 package db
 
-import "database/sql"
+import (
+	"github.com/jmoiron/sqlx"
+)
 
-func NewUserDB(db *sql.DB) UserDB {
+func NewUserDB(db *sqlx.DB) UserDB {
 	return UserDB{
 		UserDB: db,
 	}
 }
 
 type UserDB struct {
-	UserDB *sql.DB
+	UserDB *sqlx.DB
 }

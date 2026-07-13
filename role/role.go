@@ -3,6 +3,7 @@ package role
 import (
 	"goapp/db"
 	"goapp/myRedis"
+	"slices"
 )
 
 type RoleInterface interface {
@@ -24,4 +25,14 @@ func NewRoleHandler(db db.UserDB, redis myRedis.RedisPool) RoleInterface {
 type Roles struct {
 	HotelID string
 	Role    string
+}
+
+func GetRoles(r []Roles, hotelID string) *Roles {
+	sliceRole := slices.DeleteFunc(r, func(r Roles) bool {
+		return r.HotelID != hotelID
+	})
+	if len(sliceRole) == 0 {
+		return nil
+	}
+	return &sliceRole[0]
 }

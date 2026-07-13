@@ -21,7 +21,9 @@ func (h *roleHandler) GetUserRoles(userID string) ([]Roles, error) {
 	if len(roleInRedis) == 0 {
 		slog.Info("redis role is not found check databases")
 
-		row, err := h.db.UserDB.Query("SELECT facility_id,role FROM facility_users WHERE user_id = ?", parsedUserID[:])
+		row, err := h.db.UserDB.Query(`
+		SELECT facility_id,role FROM facility_users
+		 WHERE user_id = ? AND status = 'active'`, parsedUserID[:])
 		if err != nil {
 			slog.Error("failed in get facility", "error", err)
 			return nil, err

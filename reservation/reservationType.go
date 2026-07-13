@@ -10,7 +10,7 @@ import (
 
 type Reservation struct {
 	ReservationID  string        `json:"reservationID" binding:"required,min=32,max=36"`
-	RepresentGuest guest.Guest   `json:"representGuest" binding:"required"`
+	RepresentGuest *guest.Guest  `json:"representGuest" binding:"required"`
 	Guests         []guest.Guest `json:"guests" binding:"required"`
 }
 
@@ -19,12 +19,12 @@ type ReservationHandler struct {
 }
 
 type ReservationInterface interface {
-	GetAll(facilityID string) ([]Reservation, error)
-	Get(facilityID string, reservationID string) (Reservation, error)
-	Put(facilityID string, reservation Reservation) error
-	PutMany(facilityID string, reservations []Reservation) error
-	Post(facilityID string, reservationID string) error
-	Delete(facilityID string) error
+	GetAllReservation(facilityID string) ([]*Reservation, error)
+	// GetReservationById(facilityID string, reservationID string) (Reservation, error)
+	// PutReservation(facilityID string, reservation Reservation) error
+	// PutManyReservation(facilityID string, reservations []Reservation) error
+	// PostReservation(facilityID string, reservationID string) error
+	// DeleteReservation(facilityID string) error
 }
 
 type GetReservationJSON struct {
@@ -45,7 +45,7 @@ func (h *ReservationHandler) GetAll(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "internal error happen"})
 		return
 	}
-	reservation, err := h.Reservation.GetAll(reservationJSON.FacilityID)
+	reservation, err := h.Reservation.GetAllReservation(reservationJSON.FacilityID)
 	if err != nil {
 		slog.Error("can't get reservation Info", "error", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "500 Internal Error"})

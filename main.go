@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"crypto/tls"
-	"database/sql"
 	"goapp/authorize"
 	"goapp/db"
 	"goapp/facility"
@@ -18,6 +17,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang-jwt/jwt/v5"
 	redigo "github.com/gomodule/redigo/redis"
+	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 )
 
@@ -66,7 +66,7 @@ func main() {
 		MinVersion: tls.VersionTLS12,
 	}
 	mysql.RegisterTLSConfig("custom-tls", tlsConfig)
-	mysqlConnection, err := sql.Open("mysql", connectionString)
+	mysqlConnection, err := sqlx.Open("mysql", connectionString)
 	if err != nil {
 		log.Printf("Error connecting to database: %v", err)
 		os.Exit(1)
