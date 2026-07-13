@@ -9,8 +9,8 @@ import (
 )
 
 type RedisPool interface {
-	Save(ctx context.Context, id string, values map[string]any) error
-	Load(ctx context.Context, id string) (map[string]any, error)
+	Save(id string, values map[string]any) error
+	Load(id string) (map[string]any, error)
 	Key(id string) string
 	Delete(ctx context.Context, id string) error
 }
@@ -35,7 +35,7 @@ func (s *prefixRedisStoreWithPool) Key(id string) string {
 	return s.prefix + ":" + id
 }
 
-func (s *prefixRedisStoreWithPool) Save(ctx context.Context, id string, values map[string]any) error {
+func (s *prefixRedisStoreWithPool) Save(id string, values map[string]any) error {
 	data, err := json.Marshal(values)
 	if err != nil {
 		return err
@@ -52,7 +52,7 @@ func (s *prefixRedisStoreWithPool) Save(ctx context.Context, id string, values m
 	return nil
 }
 
-func (s *prefixRedisStoreWithPool) Load(ctx context.Context, id string) (map[string]any, error) {
+func (s *prefixRedisStoreWithPool) Load(id string) (map[string]any, error) {
 	conn := s.pool.Get()
 
 	reply, err := redigo.Bytes(conn.Do("GET", id))

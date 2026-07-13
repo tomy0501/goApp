@@ -98,7 +98,7 @@ func main() {
 			return redigo.Dial("tcp", redisHost, redigo.DialPassword(redisPassword), redigo.DialUseTLS(true), redigo.DialConnectTimeout(3*time.Second))
 		},
 	}
-	mySes := myRedis.NewPrefixRedisStoreWithPool(myPool, "authorization", 3600, []byte(secretKey))
+	mySes := myRedis.NewPrefixRedisStoreWithPool(myPool, "hotelService", 3600, []byte(secretKey))
 
 	userDB := db.NewUserDB(mysqlConnection)
 	authHandler := authorize.NewAuthHandlerInterface(publicKey, userDB, mySes)
