@@ -12,7 +12,7 @@ type reservationRepository struct {
 }
 
 func NewReservationRepository(db db.UserDB) ReservationInterface {
-	return reservationRepository{
+	return &reservationRepository{
 		db: db,
 	}
 }
