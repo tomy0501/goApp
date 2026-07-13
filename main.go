@@ -7,6 +7,7 @@ import (
 	"goapp/db"
 	"goapp/facility"
 	"goapp/myRedis"
+	"goapp/reservation"
 	"log"
 	"log/slog"
 	"os"
@@ -106,5 +107,10 @@ func main() {
 	facilityRepository := facility.NewFacilityRepository(userDB)
 	facilityHandler := facility.NewFacilityHandler(facilityRepository)
 	newApp.GET("/facility", facilityHandler.Get)
+	reservationRepository := reservation.NewReservationRepository(userDB)
+	reservationHandler := reservation.ReservationHandler{
+		Reservation: reservationRepository,
+	}
+	newApp.GET("/allReservation", reservationHandler.GetAll)
 	newApp.Run(":" + port) // listen and serve on
 }
