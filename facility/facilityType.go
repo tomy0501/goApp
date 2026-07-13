@@ -1,4 +1,14 @@
-package myTypes
+package facility
+
+type FacilityHandler struct {
+	Facility FacilityInterface
+}
+
+func NewFacilityHandler(f FacilityInterface) FacilityHandler {
+	return FacilityHandler{
+		Facility: f,
+	}
+}
 
 type FacilityInterface interface {
 	GetFacilityInfo(userID string) (*[]FacilityJSON, error)

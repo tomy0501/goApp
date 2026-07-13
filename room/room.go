@@ -1,4 +1,4 @@
-package myTypes
+package room
 
 type Room struct {
 	RoomID   string `json:"roomID" binding:"required"`

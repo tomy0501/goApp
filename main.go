@@ -5,8 +5,11 @@ import (
 	"crypto/tls"
 	"database/sql"
 	"goapp/authorize"
-	"goapp/logic"
+	"goapp/db"
+	"goapp/facility"
+	"goapp/myRedis"
 	"log"
+	"log/slog"
 	"os"
 	"time"
 
@@ -14,6 +17,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang-jwt/jwt/v5"
+	redigo "github.com/gomodule/redigo/redis"
 	"github.com/joho/godotenv"
 )
 
@@ -43,21 +47,36 @@ func main() {
 	if connectionString == "" {
 		connectionString = "user:password@tcp(localhost:3306)/dbname" // default connection string if not specified
 	}
+	redisHost := os.Getenv("REDIS_ADDR")
+	if redisHost == "" {
+		redisHost = "localhost:3003"
+	}
+
+	redisPassword := os.Getenv("REDIS_PASSWORD")
+	if redisPassword == "" {
+		redisPassword = "password0"
+	}
+
+	secretKey := os.Getenv("SESSION_SECRET")
+	if secretKey == "" {
+		slog.Error("can not found secret key app is down")
+		os.Exit(1)
+	}
 	tlsConfig := &tls.Config{
 		MinVersion: tls.VersionTLS12,
 	}
 	mysql.RegisterTLSConfig("custom-tls", tlsConfig)
-	db, err := sql.Open("mysql", connectionString)
+	mysqlConnection, err := sql.Open("mysql", connectionString)
 	if err != nil {
 		log.Printf("Error connecting to database: %v", err)
 		os.Exit(1)
 	}
-	defer db.Close()
+	defer mysqlConnection.Close()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	if err := db.PingContext(ctx); err != nil {
+	if err := mysqlConnection.PingContext(ctx); err != nil {
 		log.Printf("Error pinging database: %v", err)
 		os.Exit(1)
 	}
@@ -72,14 +91,20 @@ func main() {
 		log.Fatalf("Error parsing public key: %v", err)
 	}
 
-	authhandler := authorize.AuthHandler{
-		PublicKey: publicKey,
+	myPool := &redigo.Pool{
+		MaxIdle:     3,
+		IdleTimeout: 240 * time.Second,
+		Dial: func() (redigo.Conn, error) {
+			return redigo.Dial("tcp", redisHost, redigo.DialPassword(redisPassword), redigo.DialUseTLS(true), redigo.DialConnectTimeout(3*time.Second))
+		},
 	}
-	userDB := logic.NewUserDB(db)
-	authLogics := logic.AuthHandlers{
-		AuthStorage: &userDB,
-	}
-	newApp.Use(authorize.CheckAccessToken(&authhandler))
-	newApp.GET("/facility", authLogics.FacilityGetLogic)
+	mySes := myRedis.NewPrefixRedisStoreWithPool(myPool, "authorization", 3600, []byte(secretKey))
+
+	userDB := db.NewUserDB(mysqlConnection)
+	authHandler := authorize.NewAuthHandlerInterface(publicKey, userDB, mySes)
+	newApp.Use(authorize.CheckAccessToken(authHandler))
+	facilityRepository := facility.NewFacilityRepository(userDB)
+	facilityHandler := facility.NewFacilityHandler(facilityRepository)
+	newApp.GET("/facility", facilityHandler.Get)
 	newApp.Run(":" + port) // listen and serve on
 }

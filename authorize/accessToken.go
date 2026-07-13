@@ -1,7 +1,6 @@
 package authorize
 
 import (
-	"crypto/rsa"
 	"log/slog"
 	"net/http"
 
@@ -15,18 +14,7 @@ type CustomClaims struct {
 	Role     string `json:"role"`
 }
 
-type AuthHandlerInterface interface {
-	GetPublicKey() string
-}
-
-type AuthHandler struct {
-	PublicKey *rsa.PublicKey
-}
-
-func (h *AuthHandler) GetPublicKey() *rsa.PublicKey {
-	return h.PublicKey
-}
-func CheckAccessToken(h *AuthHandler) gin.HandlerFunc {
+func CheckAccessToken(h AuthHandlerInterface) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		accessToken, err := c.Cookie("accessToken")
 		if err != nil {
