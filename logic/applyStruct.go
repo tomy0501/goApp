@@ -1,6 +1,9 @@
 package logic
 
-import "database/sql"
+import (
+	"database/sql"
+	"goapp/myTypes"
+)
 
 type AuthHandlers struct {
 	AuthStorage ApplyLogic
@@ -16,5 +19,6 @@ type UserDB struct {
 	userDB *sql.DB
 }
 type ApplyLogic interface {
-	FacilityInterface
+	myTypes.FacilityInterface
+	myTypes.ReservationInterface
 }

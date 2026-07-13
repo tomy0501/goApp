@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"goapp/myTypes"
 	"log/slog"
 	"net/http"
 
@@ -8,18 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type FacilityInterface interface {
-	GetFacilityInfo(userID string) (*[]FacilityJSON, error)
-}
-
-type FacilityJSON struct {
-	FacilityName string `json:"hotelName"`
-	Address      string `json:"address"`
-	Phone        string `json:"phone"`
-	FacilityID   string `json:"hotelID"`
-}
-
-func (d *UserDB) GetFacilityInfo(userID string) (*[]FacilityJSON, error) {
+func (d *UserDB) GetFacilityInfo(userID string) (*[]myTypes.FacilityJSON, error) {
 	parsedUserID, err := uuid.Parse(userID)
 	if err != nil {
 		slog.Error("uuid can't parse", "error", err)
@@ -34,9 +24,15 @@ func (d *UserDB) GetFacilityInfo(userID string) (*[]FacilityJSON, error) {
 		slog.Error("failed in get facility", "error", err)
 		return nil, err
 	}
-	var facilities []FacilityJSON
+	err = row.Err()
+	if err != nil {
+		slog.Error("failed when fetch facility row", "error", err)
+		return nil, err
+	}
+	defer row.Close()
+	var facilities []myTypes.FacilityJSON
 	for row.Next() {
-		var facility FacilityJSON
+		var facility myTypes.FacilityJSON
 		var rawFacilityID []byte
 		if err := row.Scan(&rawFacilityID, &facility.FacilityName, &facility.Address, &facility.Phone); err != nil {
 			slog.Error("can't read facility row", "error", err)
