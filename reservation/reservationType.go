@@ -15,9 +15,16 @@ type Reservation struct {
 	Guests         []guest.Guest `json:"guests" binding:"required"`
 }
 
-type ReservationHandler struct {
+type reservationHandler struct {
 	Reservation ReservationInterface
 	Roll        role.RoleInterface
+}
+
+func NewReservationHandler(reservationIF ReservationInterface, rollIF role.RoleInterface) *reservationHandler {
+	return &reservationHandler{
+		Reservation: reservationIF,
+		Roll:        rollIF,
+	}
 }
 
 type ReservationInterface interface {
@@ -37,7 +44,7 @@ type GetReservationUri struct {
 	FacilityID string `uri:"facilityID" binding:"required,min=32,max=36"`
 }
 
-func (h *ReservationHandler) GetAll(c *gin.Context) {
+func (h *reservationHandler) GetAll(c *gin.Context) {
 	userID := c.GetString("userID")
 	if userID == "" {
 		slog.Error("userID is not exist")

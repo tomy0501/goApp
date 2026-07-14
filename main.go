@@ -110,10 +110,7 @@ func main() {
 	newApp.GET("/facility", facilityHandler.Get)
 	reservationRepository := reservation.NewReservationRepository(userDB)
 	roleHandler := role.NewRoleHandler(userDB, mySes)
-	reservationHandler := reservation.ReservationHandler{
-		Reservation: reservationRepository,
-		Roll:        roleHandler,
-	}
+	reservationHandler := reservation.NewReservationHandler(reservationRepository, roleHandler)
 	newApp.GET("/allReservation/:facilityID", reservationHandler.GetAll)
 	newApp.Run(":" + port) // listen and serve on
 }
