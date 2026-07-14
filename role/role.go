@@ -8,6 +8,7 @@ import (
 
 type RoleInterface interface {
 	GetUserRoles(userID string) ([]Roles, error)
+	GetUserRoleByFacility(userID string, facilityID string) (*Roles, error)
 }
 
 type roleHandler struct {

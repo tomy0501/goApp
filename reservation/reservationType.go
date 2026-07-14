@@ -2,6 +2,7 @@ package reservation
 
 import (
 	"goapp/guest"
+	"goapp/role"
 	"log/slog"
 	"net/http"
 
@@ -16,6 +17,7 @@ type Reservation struct {
 
 type ReservationHandler struct {
 	Reservation ReservationInterface
+	Roll        role.RoleInterface
 }
 
 type ReservationInterface interface {
@@ -31,6 +33,10 @@ type GetReservationJSON struct {
 	FacilityID string `json:"facility_id" binding:"required,min=32,max=36"`
 }
 
+type GetReservationUri struct {
+	FacilityID string `uri:"facilityID" binding:"required,min=32,max=36"`
+}
+
 func (h *ReservationHandler) GetAll(c *gin.Context) {
 	userID := c.GetString("userID")
 	if userID == "" {
@@ -38,14 +44,23 @@ func (h *ReservationHandler) GetAll(c *gin.Context) {
 		c.JSON(http.StatusForbidden, gin.H{"message": "userID is invalid"})
 		return
 	}
-	var reservationJSON GetReservationJSON
-	err := c.ShouldBindJSON(&reservationJSON)
-	if err != nil {
-		slog.Error("failed in parse json", "error", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "internal error happen"})
+	var facilityRequest GetReservationUri
+	if err := c.ShouldBindUri(&facilityRequest); err != nil {
+		slog.Error("invalid facility Uri")
+		c.JSON(http.StatusBadRequest, gin.H{"message": "invalid request, stop process"})
 		return
 	}
-	reservation, err := h.Reservation.GetAllReservation(reservationJSON.FacilityID)
+	role, err := h.Roll.GetUserRoleByFacility(userID, facilityRequest.FacilityID)
+	if err != nil {
+		slog.Error("can't get role", "error", err)
+		c.JSON(http.StatusForbidden, gin.H{"message": "request is invalid"})
+		return
+	}
+	if role.Role != "staff" {
+		c.JSON(http.StatusForbidden, gin.H{"message": "sorry you have not permission to access reservation"})
+		return
+	}
+	reservation, err := h.Reservation.GetAllReservation(facilityRequest.FacilityID)
 	if err != nil {
 		slog.Error("can't get reservation Info", "error", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "500 Internal Error"})

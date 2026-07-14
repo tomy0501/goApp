@@ -111,6 +111,6 @@ func main() {
 	reservationHandler := reservation.ReservationHandler{
 		Reservation: reservationRepository,
 	}
-	newApp.GET("/allReservation", reservationHandler.GetAll)
+	newApp.GET("/allReservation/:facilityID", reservationHandler.GetAll)
 	newApp.Run(":" + port) // listen and serve on
 }
