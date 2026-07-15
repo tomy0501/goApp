@@ -59,19 +59,30 @@ func (mysql *reservationRepository) GetAllReservation(facilityID string) ([]*Res
 	var reservations []*Reservation
 
 	for _, row := range rawReservationData {
-		res, resExist := resMap[row.ReservationID]
+		parsedReservationID, err := uuid.FromBytes([]byte(row.ReservationID))
+		if err != nil {
+			slog.Error("invalid reservationID type please check mysql")
+			return nil, err
+		}
+		parsedGuestID, err := uuid.FromBytes([]byte(row.GuestID))
+		if err != nil {
+			slog.Error("invalid guestID type please check mysql")
+			return nil, err
+		}
+		res, resExist := resMap[parsedFacilityID.String()]
 		if !resExist {
+
 			res = &Reservation{
-				ReservationID:  row.ReservationID,
+				ReservationID:  parsedReservationID.String(),
 				RepresentGuest: nil,
 				Guests:         []guest.Guest{},
 			}
-			resMap[row.ReservationID] = res
+			resMap[parsedFacilityID.String()] = res
 			reservations = append(reservations, res)
 		}
 		if row.RepresentID == row.GuestID {
 			res.RepresentGuest = &guest.Guest{
-				GuestID:   row.GuestID,
+				GuestID:   parsedGuestID.String(),
 				GuestName: row.GuestName,
 				GuestSex:  row.GuestSex,
 				GuestAge:  row.GuestAge,
@@ -79,7 +90,7 @@ func (mysql *reservationRepository) GetAllReservation(facilityID string) ([]*Res
 			}
 		}
 		res.Guests = append(res.Guests, guest.Guest{
-			GuestID:   row.GuestID,
+			GuestID:   parsedGuestID.String(),
 			GuestName: row.GuestName,
 			GuestSex:  row.GuestSex,
 			GuestAge:  row.GuestAge,
