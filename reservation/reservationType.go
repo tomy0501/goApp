@@ -10,9 +10,9 @@ import (
 )
 
 type Reservation struct {
-	ReservationID  string        `json:"reservationID" binding:"required,min=32,max=36"`
-	RepresentGuest *guest.Guest  `json:"representGuest" binding:"required"`
-	Guests         []guest.Guest `json:"guests" binding:"required"`
+	ReservationID  string        `json:"ReservationID" binding:"required,min=32,max=36"`
+	RepresentGuest *guest.Guest  `json:"RepresentGuest" binding:"required"`
+	Guests         []guest.Guest `json:"Guests" binding:"required"`
 }
 
 type reservationHandler struct {
