@@ -5,6 +5,8 @@ import (
 	"goapp/db"
 	"goapp/guest"
 	"log/slog"
+
+	"github.com/google/uuid"
 )
 
 type reservationRepository struct {
@@ -33,7 +35,12 @@ type CombineReservationRow struct {
 
 func (mysql *reservationRepository) GetAllReservation(facilityID string) ([]*Reservation, error) {
 	var rawReservationData []CombineReservationRow
-	err := mysql.db.UserDB.Select(&rawReservationData,
+	parsedFacilityID, err := uuid.Parse(facilityID)
+	if err != nil {
+		slog.Error("can't parse facilityID to byte")
+		return nil, err
+	}
+	err = mysql.db.UserDB.Select(&rawReservationData,
 		`
 		SELECT reservation.id AS reservation_id,reservation.represent_guest_id AS represent_id,
 		guest.id AS guest_id,
@@ -43,7 +50,7 @@ func (mysql *reservationRepository) GetAllReservation(facilityID string) ([]*Res
 		INNER JOIN guest ON reservation_guest.guest_id = guest.id
 		INNER JOIN room ON reservation_guest.room_id = room.id WHERE reservation.facility_id = ?
 		ORDER BY reservation_id
-		`, facilityID)
+		`, parsedFacilityID[:])
 	if err != nil {
 		slog.Error("can't get reservation", "error", err)
 		return nil, err
