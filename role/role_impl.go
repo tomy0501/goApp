@@ -98,13 +98,21 @@ func (h *roleHandler) GetUserRoleByFacility(userID string, facilityID string) (*
 		var roles []Roles
 		for row.Next() {
 			var role Roles
-			err = row.Scan(&role.HotelID, &role.Role)
+			var rawHotelID []byte
+			err = row.Scan(&rawHotelID, &role.Role)
 			if err != nil {
 				slog.Error("can't get roll from mysql", "db error", err)
 				return nil, err
 			}
+			parsedHotelID, err := uuid.FromBytes(rawHotelID)
+			if err != nil {
+				slog.Error("can't parse uuid from mysql please check database")
+				return nil, err
+			}
+			role.HotelID = parsedHotelID.String()
 			roles = append(roles, role)
 		}
+
 		roleInRedis["userRoles"] = roles
 		h.redis.Save(redisID, roleInRedis)
 		slog.Info("check role and facilityID", "role", roles, "facilityID", facilityID)
