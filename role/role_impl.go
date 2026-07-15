@@ -9,11 +9,13 @@ import (
 
 func (h *roleHandler) GetUserRoles(userID string) ([]Roles, error) {
 	parsedUserID, err := uuid.Parse(userID)
+	redisID := h.redis.Key(userID)
 	if err != nil {
 		slog.Error("uuid is invalid, can't get user role")
 		return nil, err
 	}
-	roleInRedis, err := h.redis.Load(userID)
+
+	roleInRedis, err := h.redis.Load(redisID)
 	if err != nil {
 		slog.Error("can't get Roll")
 		return nil, err
@@ -45,7 +47,7 @@ func (h *roleHandler) GetUserRoles(userID string) ([]Roles, error) {
 			roles = append(roles, role)
 		}
 		roleInRedis["userRoles"] = roles
-		h.redis.Save(userID, roleInRedis)
+		h.redis.Save(redisID, roleInRedis)
 		return roles, nil
 	} else {
 		if rolls, ok := roleInRedis["userRoles"]; ok {
@@ -61,6 +63,7 @@ func (h *roleHandler) GetUserRoles(userID string) ([]Roles, error) {
 
 func (h *roleHandler) GetUserRoleByFacility(userID string, facilityID string) (*Roles, error) {
 	parsedUserID, err := uuid.Parse(userID)
+	redisID := h.redis.Key(userID)
 	if err != nil {
 		slog.Error("uuid is invalid, can't get user role")
 		return nil, err
@@ -70,7 +73,7 @@ func (h *roleHandler) GetUserRoleByFacility(userID string, facilityID string) (*
 		slog.Error("uuid is invalid, can't get user role")
 		return nil, err
 	}
-	roleInRedis, err := h.redis.Load(userID)
+	roleInRedis, err := h.redis.Load(redisID)
 	if err != nil {
 		slog.Error("can't get Roll")
 		return nil, err
@@ -103,7 +106,7 @@ func (h *roleHandler) GetUserRoleByFacility(userID string, facilityID string) (*
 			roles = append(roles, role)
 		}
 		roleInRedis["userRoles"] = roles
-		h.redis.Save(userID, roleInRedis)
+		h.redis.Save(redisID, roleInRedis)
 		facilityRole := GetRoles(roles, facilityID)
 		if facilityRole == nil {
 
