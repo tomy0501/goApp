@@ -107,6 +107,7 @@ func (h *roleHandler) GetUserRoleByFacility(userID string, facilityID string) (*
 		}
 		roleInRedis["userRoles"] = roles
 		h.redis.Save(redisID, roleInRedis)
+		slog.Info("check role and facilityID", "role", roles, "facilityID", facilityID)
 		facilityRole := GetRoles(roles, facilityID)
 		if facilityRole == nil {
 
