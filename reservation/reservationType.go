@@ -63,11 +63,13 @@ func (h *reservationHandler) GetAll(c *gin.Context) {
 		c.JSON(http.StatusForbidden, gin.H{"message": "request is invalid"})
 		return
 	}
+	slog.Info("checkRole", "roll", role.Role)
 	if role.Role != "staff" {
 		c.JSON(http.StatusForbidden, gin.H{"message": "sorry you have not permission to access reservation"})
 		return
 	}
 	reservation, err := h.Reservation.GetAllReservation(facilityRequest.FacilityID)
+	slog.Info("checkreservation", "reserve", reservation)
 	if err != nil {
 		slog.Error("can't get reservation Info", "error", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "500 Internal Error"})
