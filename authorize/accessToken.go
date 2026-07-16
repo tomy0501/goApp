@@ -1,6 +1,7 @@
 package authorize
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
 
@@ -33,7 +34,7 @@ func CheckAccessToken(h AuthHandlerInterface) gin.HandlerFunc {
 		})
 
 		if err != nil || !token.Valid {
-			if err == jwt.ErrTokenExpired {
+			if errors.Is(err, jwt.ErrTokenExpired) {
 				c.JSON(http.StatusUnauthorized, gin.H{"message": "token expired", "code": "TOKEN_EXPIRED"})
 				c.Abort()
 				return
