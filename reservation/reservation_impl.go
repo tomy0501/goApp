@@ -102,6 +102,8 @@ func (mysql *reservationRepository) GetAllReservation(facilityID string) ([]*Res
 				GuestSex:  row.GuestSex,
 				GuestAge:  row.GuestAge,
 				GuestFrom: row.GuestFrom,
+				Checkin:   row.CheckIn,
+				Checkout:  row.CheckOut,
 				Room:      room,
 			}
 		}
@@ -111,6 +113,8 @@ func (mysql *reservationRepository) GetAllReservation(facilityID string) ([]*Res
 			GuestSex:  row.GuestSex,
 			GuestAge:  row.GuestAge,
 			GuestFrom: row.GuestFrom,
+			Checkin:   row.CheckIn,
+			Checkout:  row.CheckOut,
 			Room:      room,
 		})
 	}
