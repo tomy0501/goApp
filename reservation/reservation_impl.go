@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"goapp/db"
 	"goapp/guest"
+	"goapp/room"
 	"log/slog"
 
 	"github.com/google/uuid"
@@ -29,6 +30,7 @@ type CombineReservationRow struct {
 	GuestFrom     sql.NullString `db:"customer_from"`
 	RoomID        string         `db:"room_id"`
 	RooomName     string         `db:"room_name"`
+	RoomType      string         `db:"room_type_name"`
 	CheckIn       sql.NullString `db:"checkin"`
 	CheckOut      sql.NullString `db:"checkout"`
 }
@@ -45,10 +47,13 @@ func (mysql *reservationRepository) GetAllReservation(facilityID string) ([]*Res
 		SELECT reservation.id AS reservation_id,reservation.represent_guest_id AS represent_id,
 		guest.id AS guest_id,
 		guest.customer_name,guest.customer_sex,guest.customer_from,
-		room.id AS room_id,room.room_name,reservation_guest.checkin,reservation_guest.checkout
+		room.id AS room_id,room.room_name,reservation_guest.checkin,reservation_guest.checkout,
+		room_type.room_type_name
 		FROM reservation INNER JOIN reservation_guest ON reservation.id = reservation_guest.reservation_id
 		INNER JOIN guest ON reservation_guest.guest_id = guest.id
-		INNER JOIN room ON reservation_guest.room_id = room.id WHERE reservation.facility_id = ?
+		INNER JOIN room ON reservation_guest.room_id = room.id
+		INNER JOIN room_type ON room.id = room_type.room_id
+		WHERE reservation.facility_id = ?
 		ORDER BY reservation_id
 		`, parsedFacilityID[:])
 	if err != nil {
@@ -80,6 +85,11 @@ func (mysql *reservationRepository) GetAllReservation(facilityID string) ([]*Res
 			resMap[parsedFacilityID.String()] = res
 			reservations = append(reservations, res)
 		}
+		room := room.Room{
+			RoomID:   row.RoomID,
+			RoomName: row.RooomName,
+			RoomType: row.RoomType,
+		}
 		if row.RepresentID == row.GuestID {
 			res.RepresentGuest = &guest.Guest{
 				GuestID:   parsedGuestID.String(),
@@ -87,6 +97,7 @@ func (mysql *reservationRepository) GetAllReservation(facilityID string) ([]*Res
 				GuestSex:  row.GuestSex,
 				GuestAge:  row.GuestAge,
 				GuestFrom: row.GuestFrom,
+				Room:      room,
 			}
 		}
 		res.Guests = append(res.Guests, guest.Guest{
@@ -95,6 +106,7 @@ func (mysql *reservationRepository) GetAllReservation(facilityID string) ([]*Res
 			GuestSex:  row.GuestSex,
 			GuestAge:  row.GuestAge,
 			GuestFrom: row.GuestFrom,
+			Room:      room,
 		})
 	}
 	return reservations, nil
