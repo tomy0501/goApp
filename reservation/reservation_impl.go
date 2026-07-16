@@ -74,6 +74,11 @@ func (mysql *reservationRepository) GetAllReservation(facilityID string) ([]*Res
 			slog.Error("invalid guestID type please check mysql")
 			return nil, err
 		}
+		parsedRoomID, err := uuid.FromBytes([]byte(row.RoomID))
+		if err != nil {
+			slog.Error("invalid RoomID type please check mysql")
+			return nil, err
+		}
 		res, resExist := resMap[parsedFacilityID.String()]
 		if !resExist {
 
@@ -86,7 +91,7 @@ func (mysql *reservationRepository) GetAllReservation(facilityID string) ([]*Res
 			reservations = append(reservations, res)
 		}
 		room := room.Room{
-			RoomID:   row.RoomID,
+			RoomID:   parsedRoomID.String(),
 			RoomName: row.RooomName,
 			RoomType: row.RoomType,
 		}
