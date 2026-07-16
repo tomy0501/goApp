@@ -21,10 +21,10 @@ func NewReservationRepository(db db.UserDB) ReservationInterface {
 }
 
 type CombineReservationRow struct {
-	ReservationID string `db:"reservation_id"`
-	RepresentID   string `db:"represent_id"`
-	GuestID       string `db:"guest_id"`
-	GuestAge      sql.NullInt16
+	ReservationID string         `db:"reservation_id"`
+	RepresentID   string         `db:"represent_id"`
+	GuestID       string         `db:"guest_id"`
+	GuestAge      sql.NullInt16  `db:"customer_age"`
 	GuestName     string         `db:"customer_name"`
 	GuestSex      sql.NullString `db:"customer_sex"`
 	GuestFrom     sql.NullString `db:"customer_from"`
@@ -45,7 +45,7 @@ func (mysql *reservationRepository) GetAllReservation(facilityID string) ([]*Res
 	err = mysql.db.UserDB.Select(&rawReservationData,
 		`
 		SELECT reservation.id AS reservation_id,reservation.represent_guest_id AS represent_id,
-		guest.id AS guest_id,
+		guest.id AS guest_id,guest.customer_age,
 		guest.customer_name,guest.customer_sex,guest.customer_from,
 		room.id AS room_id,room.room_name,reservation_guest.checkin,reservation_guest.checkout,
 		room_type.room_type_name
