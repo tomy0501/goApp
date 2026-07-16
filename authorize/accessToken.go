@@ -19,7 +19,7 @@ func CheckAccessToken(h AuthHandlerInterface) gin.HandlerFunc {
 		accessToken, err := c.Cookie("accessToken")
 		if err != nil {
 			slog.Error("not found accessToken")
-			c.JSON(http.StatusForbidden, gin.H{"message": "accessToken is invalid"})
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "accessToken is invalid", "code": "TOKEN_INVALID"})
 			c.Abort()
 			return
 		}
@@ -33,8 +33,8 @@ func CheckAccessToken(h AuthHandlerInterface) gin.HandlerFunc {
 		})
 
 		if err != nil || !token.Valid {
-			if err == jwt.ErrTokenExpired && token.Valid {
-				c.JSON(http.StatusUnauthorized, gin.H{"message": "toyken expired"})
+			if err == jwt.ErrTokenExpired {
+				c.JSON(http.StatusUnauthorized, gin.H{"message": "token expired", "code": "TOKEN_EXPIRED"})
 				c.Abort()
 				return
 			} else {
