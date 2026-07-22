@@ -34,7 +34,7 @@ func (h *hotelIndexRepository) GetHotelIndexInfo(facilityID string, userID strin
 
 	err = h.db.UserDB.Select(&combineRow.FacilityRole, combineRow.FacilityName, `SELECT facility_users.role,facilities.name FROM facility_users
 INNER JOIN facilities on facilities.id = facility_users.facility_id WHERE facility_users.user_id = ? AND facility_users.facilityID = ?`,
-		parsedUserID[:], parsedFacilityID)
+		parsedUserID[:], parsedFacilityID[:])
 	if err != nil {
 		return nil, err
 	}
