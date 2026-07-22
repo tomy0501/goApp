@@ -6,6 +6,7 @@ import (
 	"goapp/authorize"
 	"goapp/db"
 	"goapp/facility"
+	hotelindex "goapp/hotelIndex"
 	"goapp/myRedis"
 	"goapp/reservation"
 	"goapp/role"
@@ -105,12 +106,21 @@ func main() {
 	userDB := db.NewUserDB(mysqlConnection)
 	authHandler := authorize.NewAuthHandlerInterface(publicKey, userDB, mySes)
 	newApp.Use(authorize.CheckAccessToken(authHandler))
+
 	facilityRepository := facility.NewFacilityRepository(userDB)
 	facilityHandler := facility.NewFacilityHandler(facilityRepository)
 	newApp.GET("/facility", facilityHandler.Get)
+
 	reservationRepository := reservation.NewReservationRepository(userDB)
 	roleHandler := role.NewRoleHandler(userDB, mySes)
+
 	reservationHandler := reservation.NewReservationHandler(reservationRepository, roleHandler)
 	newApp.GET("/allReservation/:facilityID", reservationHandler.GetAll)
+
+	hotelIndexRepository := hotelindex.NewHotelIndexRepository(userDB)
+	hotelIndexHandle := hotelindex.NewHotelIndexHandler(hotelIndexRepository, roleHandler)
+
+	newApp.GET("/hotel/:facilityID", hotelIndexHandle.Get)
+
 	newApp.Run(":" + port) // listen and serve on
 }
