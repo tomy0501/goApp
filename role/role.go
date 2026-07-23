@@ -26,7 +26,7 @@ func NewRoleHandler(db db.UserDB, redis myRedis.RedisPool) RoleInterface {
 
 type Roles struct {
 	HotelID string
-	Role    string
+	Role    HotelRoles
 }
 
 func GetRoles(r []Roles, hotelID string) *Roles {
@@ -38,3 +38,13 @@ func GetRoles(r []Roles, hotelID string) *Roles {
 	}
 	return &sliceRole[0]
 }
+
+type HotelRoles string
+
+const (
+	StatusOwner        HotelRoles = "owner"
+	StatusManager      HotelRoles = "manager"
+	StatusFront        HotelRoles = "front"
+	StatusHousekeeping HotelRoles = "housekeeping"
+	StatusStaff        HotelRoles = "staff"
+)
