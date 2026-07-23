@@ -13,6 +13,7 @@ type HotelIndex struct {
 	Authority string `json:"authority" binding:"require"`
 }
 
+//go:generate go run go.uber.org/mock/mockgen -source=$GOFILE -destination=mock_$GOFILE -package=$GOPACKAGE
 type HotelIndexInterface interface {
 	GetHotelIndexInfo(facilityID string, userID string) (*HotelIndex, error)
 }

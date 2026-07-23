@@ -6,6 +6,7 @@ import (
 	"slices"
 )
 
+//go:generate go run go.uber.org/mock/mockgen -source=$GOFILE -destination=mock_$GOFILE -package=$GOPACKAGE
 type RoleInterface interface {
 	GetUserRoles(userID string) ([]Roles, error)
 	GetUserRoleByFacility(userID string, facilityID string) (*Roles, error)

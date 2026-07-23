@@ -1,9 +1,7 @@
 package myRedis
 
 import (
-	"context"
 	"encoding/json"
-	"log/slog"
 
 	redigo "github.com/gomodule/redigo/redis"
 )
@@ -12,7 +10,8 @@ type RedisPool interface {
 	Save(id string, values map[string]any) error
 	Load(id string) (map[string]any, error)
 	Key(id string) string
-	Delete(ctx context.Context, id string) error
+	Delete(id string) error
+	Expire(id string, time int32) error
 }
 
 type prefixRedisStoreWithPool struct {
@@ -57,10 +56,8 @@ func (s *prefixRedisStoreWithPool) Load(id string) (map[string]any, error) {
 
 	reply, err := redigo.Bytes(conn.Do("GET", id))
 	if err == redigo.ErrNil {
-		slog.Info("reply is nil")
 		return make(map[string]any), nil
 	} else if err != nil {
-		slog.Info("reply is not nil")
 		return nil, err
 	}
 	decryptReply, err := decrypt(reply, s.secretKey)
@@ -75,13 +72,21 @@ func (s *prefixRedisStoreWithPool) Load(id string) (map[string]any, error) {
 	return rawMap, nil
 }
 
-func (s *prefixRedisStoreWithPool) Delete(ctx context.Context, id string) error {
+func (s *prefixRedisStoreWithPool) Delete(id string) error {
 	con := s.pool.Get()
 	_, err := con.Do("DEL", id)
 	if err != nil {
-		slog.Error("DELETE Redis session is failed", "error", err)
 		return err
 	}
 
+	return nil
+}
+
+func (s *prefixRedisStoreWithPool) Expire(id string, time int32) error {
+	con := s.pool.Get()
+	_, err := con.Do("EXPIRE", id, time)
+	if err != nil {
+		return err
+	}
 	return nil
 }
