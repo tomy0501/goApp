@@ -10,6 +10,7 @@ import (
 	"goapp/myRedis"
 	"goapp/reservation"
 	"goapp/role"
+	"goapp/room"
 	"log"
 	"log/slog"
 	"os"
@@ -121,6 +122,11 @@ func main() {
 	hotelIndexHandle := hotelindex.NewHotelIndexHandler(hotelIndexRepository, roleHandler)
 
 	newApp.GET("/hotel/:facilityID", hotelIndexHandle.Get)
+
+	roomRepository := room.NewGetRoomStruct(userDB)
+	roomHandle := room.NewGetRoomHandler(roomRepository, roleHandler)
+
+	newApp.GET("/allRoom/:facilityID", roomHandle.GetAll)
 
 	newApp.Run(":" + port) // listen and serve on
 }

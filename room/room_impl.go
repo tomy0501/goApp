@@ -10,6 +10,12 @@ type getRoomStruct struct {
 	db db.UserDB
 }
 
+func NewGetRoomStruct(db db.UserDB) GetRoomInterface {
+	return &getRoomStruct{
+		db: db,
+	}
+}
+
 type roomDatabaseValue struct {
 	roomID   string `db:"id"`
 	roomName string `db:"room_name"`
