@@ -99,24 +99,75 @@ func (mysql *reservationRepository) GetAllReservation(facilityID string) ([]*Res
 			res.RepresentGuest = &guest.Guest{
 				GuestID:   parsedGuestID.String(),
 				GuestName: row.GuestName,
-				GuestSex:  row.GuestSex,
-				GuestAge:  row.GuestAge,
-				GuestFrom: row.GuestFrom,
-				Checkin:   row.CheckIn,
-				Checkout:  row.CheckOut,
 				Room:      room,
 			}
+			if row.GuestAge.Valid {
+				age := int(row.GuestAge.Int16)
+				res.RepresentGuest.GuestAge = &age
+			} else {
+				res.RepresentGuest.GuestAge = nil
+			}
+			if row.GuestSex.Valid {
+				sex := row.GuestSex.String
+				res.RepresentGuest.GuestSex = &sex
+			} else {
+				res.RepresentGuest.GuestSex = nil
+			}
+			if row.GuestFrom.Valid {
+				from := row.GuestFrom.String
+				res.RepresentGuest.GuestFrom = &from
+			} else {
+				res.RepresentGuest.GuestFrom = nil
+			}
+			if row.CheckIn.Valid {
+				checkin := row.CheckIn.String
+				res.RepresentGuest.Checkin = &checkin
+			} else {
+				res.RepresentGuest.Checkin = nil
+			}
+			if row.CheckOut.Valid {
+				checkout := row.CheckOut.String
+				res.RepresentGuest.Checkout = &checkout
+			} else {
+				res.RepresentGuest.Checkout = nil
+			}
+
 		}
 		res.Guests = append(res.Guests, guest.Guest{
 			GuestID:   parsedGuestID.String(),
 			GuestName: row.GuestName,
-			GuestSex:  row.GuestSex,
-			GuestAge:  row.GuestAge,
-			GuestFrom: row.GuestFrom,
-			Checkin:   row.CheckIn,
-			Checkout:  row.CheckOut,
 			Room:      room,
 		})
+		if row.GuestAge.Valid {
+			age := int(row.GuestAge.Int16)
+			res.Guests[len(res.Guests)-1].GuestAge = &age
+		} else {
+			res.Guests[len(res.Guests)-1].GuestAge = nil
+		}
+		if row.GuestSex.Valid {
+			sex := row.GuestSex.String
+			res.Guests[len(res.Guests)-1].GuestSex = &sex
+		} else {
+			res.Guests[len(res.Guests)-1].GuestSex = nil
+		}
+		if row.GuestFrom.Valid {
+			from := row.GuestFrom.String
+			res.Guests[len(res.Guests)-1].GuestFrom = &from
+		} else {
+			res.Guests[len(res.Guests)-1].GuestFrom = nil
+		}
+		if row.CheckIn.Valid {
+			checkin := row.CheckIn.String
+			res.Guests[len(res.Guests)-1].Checkin = &checkin
+		} else {
+			res.Guests[len(res.Guests)-1].Checkin = nil
+		}
+		if row.CheckOut.Valid {
+			checkout := row.CheckOut.String
+			res.Guests[len(res.Guests)-1].Checkout = &checkout
+		} else {
+			res.Guests[len(res.Guests)-1].Checkout = nil
+		}
 	}
 	return reservations, nil
 }
