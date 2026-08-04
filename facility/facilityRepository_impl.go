@@ -8,10 +8,10 @@ import (
 )
 
 type facilityRepository struct {
-	db db.UserDB
+	db *db.UserDB
 }
 
-func NewFacilityRepository(db db.UserDB) FacilityInterface {
+func NewFacilityRepository(db *db.UserDB) FacilityInterface {
 	return &facilityRepository{
 		db: db,
 	}

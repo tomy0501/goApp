@@ -6,6 +6,7 @@ import (
 	"goapp/authorize"
 	"goapp/db"
 	"goapp/facility"
+	"goapp/guest"
 	hotelindex "goapp/hotelIndex"
 	"goapp/myRedis"
 	"goapp/reservation"
@@ -108,25 +109,30 @@ func main() {
 	authHandler := authorize.NewAuthHandlerInterface(publicKey, userDB, mySes)
 	newApp.Use(authorize.CheckAccessToken(authHandler))
 
-	facilityRepository := facility.NewFacilityRepository(userDB)
+	facilityRepository := facility.NewFacilityRepository(&userDB)
 	facilityHandler := facility.NewFacilityHandler(facilityRepository)
 	newApp.GET("/facility", facilityHandler.Get)
 
-	reservationRepository := reservation.NewReservationRepository(userDB)
-	roleHandler := role.NewRoleHandler(userDB, mySes)
+	reservationRepository := reservation.NewReservationRepository(&userDB)
+	roleHandler := role.NewRoleHandler(&userDB, &mySes)
 
 	reservationHandler := reservation.NewReservationHandler(reservationRepository, roleHandler)
 	newApp.GET("/allReservation/:facilityID", reservationHandler.GetAll)
 
-	hotelIndexRepository := hotelindex.NewHotelIndexRepository(userDB)
+	hotelIndexRepository := hotelindex.NewHotelIndexRepository(&userDB)
 	hotelIndexHandle := hotelindex.NewHotelIndexHandler(hotelIndexRepository, roleHandler)
 
 	newApp.GET("/hotel/:facilityID", hotelIndexHandle.Get)
 
-	roomRepository := room.NewGetRoomStruct(userDB)
+	roomRepository := room.NewGetRoomStruct(&userDB)
 	roomHandle := room.NewGetRoomHandler(roomRepository, roleHandler)
 
 	newApp.GET("/allRoom/:facilityID", roomHandle.GetAll)
+
+	guestRepository := guest.NewGuestRepository(&userDB)
+	guestHandler := guest.NewGuestHandler(guestRepository, roleHandler)
+	newApp.GET("/allGuest/:facilityID", guestHandler.GetAll)
+	newApp.GET("/guest/:facilityID/:guestID", guestHandler.Get)
 
 	newApp.Run(":" + port) // listen and serve on
 }

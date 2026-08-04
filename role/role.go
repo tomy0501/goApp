@@ -13,11 +13,11 @@ type RoleInterface interface {
 }
 
 type roleHandler struct {
-	db    db.UserDB
+	db    *db.UserDB
 	redis myRedis.RedisPool
 }
 
-func NewRoleHandler(db db.UserDB, redis myRedis.RedisPool) RoleInterface {
+func NewRoleHandler(db *db.UserDB, redis myRedis.RedisPool) RoleInterface {
 	return &roleHandler{
 		db:    db,
 		redis: redis,

@@ -7,10 +7,10 @@ import (
 )
 
 type getRoomStruct struct {
-	db db.UserDB
+	db *db.UserDB
 }
 
-func NewGetRoomStruct(db db.UserDB) GetRoomInterface {
+func NewGetRoomStruct(db *db.UserDB) GetRoomInterface {
 	return &getRoomStruct{
 		db: db,
 	}

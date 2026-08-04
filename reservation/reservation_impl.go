@@ -11,10 +11,10 @@ import (
 )
 
 type reservationRepository struct {
-	db db.UserDB
+	db *db.UserDB
 }
 
-func NewReservationRepository(db db.UserDB) ReservationInterface {
+func NewReservationRepository(db *db.UserDB) ReservationInterface {
 	return &reservationRepository{
 		db: db,
 	}

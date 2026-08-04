@@ -7,10 +7,10 @@ import (
 )
 
 type hotelIndexRepository struct {
-	db db.UserDB
+	db *db.UserDB
 }
 
-func NewHotelIndexRepository(db db.UserDB) HotelIndexInterface {
+func NewHotelIndexRepository(db *db.UserDB) HotelIndexInterface {
 	return &hotelIndexRepository{
 		db: db,
 	}
