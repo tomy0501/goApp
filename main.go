@@ -114,7 +114,7 @@ func main() {
 	newApp.GET("/facility", facilityHandler.Get)
 
 	reservationRepository := reservation.NewReservationRepository(&userDB)
-	roleHandler := role.NewRoleHandler(&userDB, &mySes)
+	roleHandler := role.NewRoleHandler(&userDB, mySes)
 
 	reservationHandler := reservation.NewReservationHandler(reservationRepository, roleHandler)
 	newApp.GET("/allReservation/:facilityID", reservationHandler.GetAll)
