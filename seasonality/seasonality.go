@@ -56,7 +56,7 @@ func (h *getSeasonalityHandler) GetSeasonality(c *gin.Context) {
 
 	var seasonalityUri SeasonalityUri
 
-	if err := c.ShouldBindUri(seasonalityUri); err != nil {
+	if err := c.ShouldBindUri(&seasonalityUri); err != nil {
 		slog.Error("url is invalid", "error", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "internal Sever error"})
 		return
@@ -89,7 +89,7 @@ func (h *getSeasonalityHandler) GetSeasonalityPrice(c *gin.Context) {
 		return
 	}
 	var seasonalityPriceUri SeasonalityPriceUri
-	if err := c.ShouldBindUri(seasonalityPriceUri); err != nil {
+	if err := c.ShouldBindUri(&seasonalityPriceUri); err != nil {
 		slog.Error("url is invalid", "error", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "internal Sever error"})
 		return
