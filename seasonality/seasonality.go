@@ -78,7 +78,7 @@ func (h *getSeasonalityHandler) GetSeasonality(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "OK", "seasonality": seasonality})
+	c.JSON(http.StatusOK, gin.H{"message": "OK", "value": seasonality})
 }
 
 func (h *getSeasonalityHandler) GetSeasonalityPrice(c *gin.Context) {
