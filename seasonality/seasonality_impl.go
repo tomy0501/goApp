@@ -65,7 +65,7 @@ func (r *seasonalityRepository) GetSeasonalityNumberOfPeopleBySeasonality(season
 	}
 	sql :=
 		`
-		SELECT id,number_of_people,price FROM seasonality_number_of_people WHERE seasonality_id = ?
+		SELECT id,number_of_people,price FROM seasonality_number_of_people WHERE seasonality_id = ? ORDER BY number_of_people
 	`
 
 	var seasonalityPricesValues []seasonalityPrieValue
