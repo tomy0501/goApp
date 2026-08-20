@@ -138,7 +138,7 @@ func main() {
 	seasonalityRepository := seasonality.NewSeasonalityRepository(&userDB)
 	seasonalityHandler := seasonality.NewSeasonalityHandler(seasonalityRepository, roleHandler)
 	newApp.GET("/seasonality/:facilityID", seasonalityHandler.GetSeasonality)
-	newApp.GET("/sesonalityPrice/:facilityID/:seasonalityID", seasonalityHandler.GetSeasonalityPrice)
+	newApp.GET("/seasonalityPrice/:facilityID/:seasonalityID", seasonalityHandler.GetSeasonalityPrice)
 
 	newApp.Run(":" + port) // listen and serve on
 }
