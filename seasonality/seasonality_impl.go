@@ -18,14 +18,14 @@ func NewSeasonalityRepository(db *db.UserDB) GetSeasonalityInterface {
 }
 
 type seasonalityValue struct {
-	seasonalityID   string `db:"id"`
-	seasonalityName string `db:"seasonality_name"`
+	SeasonalityID   string `db:"id"`
+	SeasonalityName string `db:"seasonality_name"`
 }
 
 type seasonalityPrieValue struct {
-	seasonalityNumberID       string          `db:"id"`
-	seasonalityNumberOfPeople int             `db:"number_of_people"`
-	seasonalityPrice          decimal.Decimal `db:"price"`
+	SeasonalityNumberID       string          `db:"id"`
+	SeasonalityNumberOfPeople int             `db:"number_of_people"`
+	SeasonalityPrice          decimal.Decimal `db:"price"`
 }
 
 func (r *seasonalityRepository) GetSeasonalityByFacility(facilityID string) ([]*Seasonality, error) {
@@ -45,13 +45,13 @@ func (r *seasonalityRepository) GetSeasonalityByFacility(facilityID string) ([]*
 	}
 	var seaonalities []*Seasonality
 	for _, row := range seasonalityValues {
-		parsedSeasonalityID, err := uuid.FromBytes([]byte(row.seasonalityID))
+		parsedSeasonalityID, err := uuid.FromBytes([]byte(row.SeasonalityID))
 		if err != nil {
 			return nil, err
 		}
 		seasonality := &Seasonality{
 			ID:              parsedSeasonalityID.String(),
-			SeasonalityName: row.seasonalityName,
+			SeasonalityName: row.SeasonalityName,
 		}
 		seaonalities = append(seaonalities, seasonality)
 	}
@@ -76,14 +76,14 @@ func (r *seasonalityRepository) GetSeasonalityNumberOfPeopleBySeasonality(season
 	}
 	var seasonalityPrices []*SeasonalityPrice
 	for _, row := range seasonalityPricesValues {
-		seasonalityPriceParsedID, err := uuid.FromBytes([]byte(row.seasonalityNumberID))
+		seasonalityPriceParsedID, err := uuid.FromBytes([]byte(row.SeasonalityNumberID))
 		if err != nil {
 			return nil, err
 		}
 		seasonalityPrice := &SeasonalityPrice{
 			ID:             seasonalityPriceParsedID.String(),
-			NumberOfPeople: row.seasonalityNumberOfPeople,
-			Price:          row.seasonalityPrice,
+			NumberOfPeople: row.SeasonalityNumberOfPeople,
+			Price:          row.SeasonalityPrice,
 		}
 		seasonalityPrices = append(seasonalityPrices, seasonalityPrice)
 	}
