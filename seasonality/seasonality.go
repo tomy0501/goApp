@@ -10,12 +10,12 @@ import (
 )
 
 type Seasonality struct {
-	ID              string `json:"id"`
+	ID              string `json:"seasonalityID"`
 	SeasonalityName string `json:"seasonalityName"`
 }
 
 type SeasonalityPrice struct {
-	ID             string          `json:"id"`
+	ID             string          `json:"seasonalityPriceID"`
 	Price          decimal.Decimal `json:"price"`
 	NumberOfPeople int             `json:"numberOfPeople"`
 }
