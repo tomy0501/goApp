@@ -12,6 +12,7 @@ import (
 	"goapp/reservation"
 	"goapp/role"
 	"goapp/room"
+	"goapp/seasonality"
 	"log"
 	"log/slog"
 	"os"
@@ -133,6 +134,11 @@ func main() {
 	guestHandler := guest.NewGuestHandler(guestRepository, roleHandler)
 	newApp.GET("/allGuest/:facilityID", guestHandler.GetAll)
 	newApp.GET("/guest/:facilityID/:guestID", guestHandler.Get)
+
+	seasonalityRepository := seasonality.NewSeasonalityRepository(&userDB)
+	seasonalityHandler := seasonality.NewSeasonalityHandler(seasonalityRepository, roleHandler)
+	newApp.GET("/seasonality/:facilityID", seasonalityHandler.GetSeasonality)
+	newApp.GET("/sesonalityPrice/:facilityID/:seasonalityID", seasonalityHandler.GetSeasonalityPrice)
 
 	newApp.Run(":" + port) // listen and serve on
 }
