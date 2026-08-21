@@ -26,6 +26,7 @@ type GuestOnly struct {
 	GuestAge  *int    `json:"GuestAge" binding:"gte=0,lte=130"`
 	GuestSex  *string `json:"GuestSex" binding:"oneof=male female other unknown"`
 	GuestFrom *string `json:"GuestFrom"`
+	Checkin   *string `json:"Checkin"`
 }
 
 type GuestInterface interface {

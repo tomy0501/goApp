@@ -12,11 +12,12 @@ type guestRepository struct {
 }
 
 type GuestRepositoryRow struct {
-	GuestID   string         `db:"customer_id"`
-	GuestAge  sql.NullInt16  `db:"customer_age"`
-	GuestName string         `db:"customer_name"`
-	GuestSex  sql.NullString `db:"customer_sex"`
-	GuestFrom sql.NullString `db:"customer_from"`
+	GuestID     string         `db:"customer_id"`
+	GuestAge    sql.NullInt16  `db:"customer_age"`
+	GuestName   string         `db:"customer_name"`
+	GuestSex    sql.NullString `db:"customer_sex"`
+	GuestFrom   sql.NullString `db:"customer_from"`
+	CheckinDate sql.NullString `db:"checkin"`
 }
 
 func NewGuestRepository(db *db.UserDB) GuestInterface {
@@ -64,6 +65,12 @@ func (r *guestRepository) GetGuestAll(facilityID string) ([]*GuestOnly, error) {
 		} else {
 			guests[len(guests)-1].GuestFrom = nil
 		}
+		if g.CheckinDate.Valid {
+			checkin := g.CheckinDate.String
+			guests[len(guests)-1].Checkin = &checkin
+		} else {
+			guests[len(guests)-1].Checkin = nil
+		}
 	}
 	return guests, nil
 }
@@ -110,6 +117,12 @@ func (r *guestRepository) GetGuestById(facilityID string, guestID string) (*Gues
 		g.GuestFrom = &from
 	} else {
 		g.GuestFrom = nil
+	}
+	if guest.CheckinDate.Valid {
+		checkin := guest.CheckinDate.String
+		g.Checkin = &checkin
+	} else {
+		g.Checkin = nil
 	}
 	return g, nil
 }
