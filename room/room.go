@@ -49,7 +49,7 @@ func (h *getRoomHandler) GetAll(c *gin.Context) {
 	}
 	var facilityUri GetRoomUri
 
-	if err := c.ShouldBindUri(facilityUri); err != nil {
+	if err := c.ShouldBindUri(&facilityUri); err != nil {
 		slog.Error("uri is invalid")
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
 		return
@@ -83,7 +83,7 @@ func (h *getRoomHandler) Get(c *gin.Context) {
 	}
 	var facilityUri GetRoomByIDUri
 
-	if err := c.ShouldBindUri(facilityUri); err != nil {
+	if err := c.ShouldBindUri(&facilityUri); err != nil {
 		slog.Error("uri is invalid")
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
 		return
