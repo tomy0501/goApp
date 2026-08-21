@@ -12,7 +12,7 @@ type guestRepository struct {
 }
 
 type GuestRepositoryRow struct {
-	GuestID   string         `db:"guest_id"`
+	GuestID   string         `db:"customer_id"`
 	GuestAge  sql.NullInt16  `db:"customer_age"`
 	GuestName string         `db:"customer_name"`
 	GuestSex  sql.NullString `db:"customer_sex"`

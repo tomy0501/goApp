@@ -118,5 +118,5 @@ func (h *guestHandler) Get(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
 		return
 	}
-	c.JSON(http.StatusOK, guest)
+	c.JSON(http.StatusOK, gin.H{"message": "OK", "value": guest})
 }
