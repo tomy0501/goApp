@@ -17,9 +17,9 @@ func NewGetRoomStruct(db *db.UserDB) GetRoomInterface {
 }
 
 type roomDatabaseValue struct {
-	roomID   string `db:"id"`
-	roomName string `db:"room_name"`
-	roomType string `db:"room_type_name"`
+	RoomID   string `db:"id"`
+	RoomName string `db:"room_name"`
+	RoomType string `db:"room_type_name"`
 }
 
 func (roomStruct *getRoomStruct) GetRoomAll(facilityID string) ([]*Room, error) {
@@ -40,14 +40,14 @@ func (roomStruct *getRoomStruct) GetRoomAll(facilityID string) ([]*Room, error) 
 	}
 	var Rooms []*Room
 	for _, row := range roomDatabases {
-		parsedRoomID, err := uuid.FromBytes([]byte(row.roomID))
+		parsedRoomID, err := uuid.FromBytes([]byte(row.RoomID))
 		if err != nil {
 			return nil, err
 		}
 		room := &Room{
 			RoomID:   parsedRoomID.String(),
-			RoomName: row.roomName,
-			RoomType: row.roomType,
+			RoomName: row.RoomName,
+			RoomType: row.RoomType,
 		}
 		Rooms = append(Rooms, room)
 	}
@@ -73,14 +73,14 @@ func (roomStruct getRoomStruct) GetRoomById(facilityID string, roomID string) (*
 	if err != nil {
 		return nil, err
 	}
-	parsedRoomID2, err := uuid.FromBytes([]byte(RoomVal.roomID))
+	parsedRoomID2, err := uuid.FromBytes([]byte(RoomVal.RoomID))
 	if err != nil {
 		return nil, err
 	}
 	RoomAnser := &Room{
 		RoomID:   parsedRoomID2.String(),
-		RoomName: RoomVal.roomName,
-		RoomType: RoomVal.roomType,
+		RoomName: RoomVal.RoomName,
+		RoomType: RoomVal.RoomType,
 	}
 
 	return RoomAnser, nil
