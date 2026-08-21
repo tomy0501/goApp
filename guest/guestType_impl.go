@@ -43,8 +43,12 @@ func (r *guestRepository) GetGuestAll(facilityID string) ([]*GuestOnly, error) {
 	}
 	var guests []*GuestOnly
 	for _, g := range guestList {
+		parsedGuestID, err := uuid.FromBytes([]byte(g.GuestID))
+		if err != nil {
+			return nil, err
+		}
 		guests = append(guests, &GuestOnly{
-			GuestID:   g.GuestID,
+			GuestID:   parsedGuestID.String(),
 			GuestName: g.GuestName,
 		})
 		if g.GuestAge.Valid {
@@ -95,9 +99,13 @@ func (r *guestRepository) GetGuestById(facilityID string, guestID string) (*Gues
 	if err != nil {
 		return nil, err
 	}
+	parsedAddedGuestID, err := uuid.FromBytes([]byte(guest.GuestID))
+	if err != nil {
+		return nil, err
+	}
 	var g *GuestOnly
 	g = &GuestOnly{
-		GuestID:   guest.GuestID,
+		GuestID:   parsedAddedGuestID.String(),
 		GuestName: guest.GuestName,
 	}
 	if guest.GuestAge.Valid {
