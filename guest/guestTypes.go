@@ -86,7 +86,7 @@ func (h *guestHandler) GetAll(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error"})
 		return
 	}
-	c.JSON(http.StatusOK, guests)
+	c.JSON(http.StatusOK, gin.H{"message": "OK", "value": guests})
 }
 
 func (h *guestHandler) Get(c *gin.Context) {
