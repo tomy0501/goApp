@@ -30,7 +30,12 @@ func (r *guestRepository) GetGuestAll(facilityID string) ([]*GuestOnly, error) {
 		return nil, err
 	}
 	var guestList []*GuestRepositoryRow
-	sql := `SELECT guest_id,customer_age,customer_name,customer_sex,customer_from FROM guest WHERE FacilityID = ?`
+	sql := `
+		SELECT g.id AS customer_id,g.customer_name,g.customer_age,g.customer_sex,g.customer_from,middle.checkin FROM reservation 
+		INNER JOIN reservation_guest AS middle ON reservation.id = middle.reservation_id
+		INNER JOIN guest AS g ON middle.guest_id = g.id
+		WHERE reservation.facility_id = ?
+	`
 	err = r.db.UserDB.Select(&guestList, sql, parsedFacilityID[:])
 	if err != nil {
 		return nil, err
@@ -73,7 +78,12 @@ func (r *guestRepository) GetGuestById(facilityID string, guestID string) (*Gues
 		return nil, err
 	}
 	var guest *GuestRepositoryRow
-	sql := `SELECT guest_id,customer_age,customer_name,customer_sex,customer_from FROM guest WHERE FacilityID = ? AND guest_id = ?`
+	sql := `
+		SELECT g.id AS customer_id,g.customer_name,g.customer_age,g.customer_sex,g.customer_from,middle.checkin FROM reservation 
+		INNER JOIN reservation_guest AS middle ON reservation.id = middle.reservation_id
+		INNER JOIN guest AS g ON middle.guest_id = g.id
+		WHERE reservation.facility_id = ? AND g.id = ?
+	`
 	err = r.db.UserDB.Get(&guest, sql, parsedFacilityID[:], parsedGuestID[:])
 	if err != nil {
 		return nil, err

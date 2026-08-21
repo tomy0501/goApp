@@ -23,3 +23,9 @@ INSERT INTO `seasonality_number_of_people` (`seasonality_id`,`number_of_people`)
 
 
 UPDATE `seasonality_number_of_people` SET `price` = `number_of_people` * 10000.00
+
+
+SELECT g.id AS customer_id,g.customer_name,g.customer_age,g.customer_sex,g.customer_from,middle.checkin FROM reservation 
+INNER JOIN reservation_guest AS middle ON reservation.id = middle.reservation_id
+INNER JOIN guest AS g ON middle.guest_id = g.id
+WHERE reservation.facility_id = ?
