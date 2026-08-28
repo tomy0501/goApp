@@ -53,7 +53,7 @@ func (r *priceRepository) GetSeasonalityByMonth(yearMonth string, facilityID str
 	INNER JOIN seasonality s ON f.id = s.facility_id
 	INNER JOIN seasonality_number_of_people snp ON s.id = snp.seasonality_id
 	INNER JOIN seasonality_of_date sod ON s.id = sod.seasonality_id
-	WHERE r.facility_id = ? AND room.id = ? AND sod.date BETWEEN(?,?) ORDER BY sod.date
+	WHERE r.facility_id = ? AND room.id = ? AND sod.date BETWEEN ? AND ? ORDER BY sod.date
 	`
 
 	var rawSeasonalityDatas []CombineSeasonalityData
