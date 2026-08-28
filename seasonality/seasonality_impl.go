@@ -18,13 +18,13 @@ func NewSeasonalityRepository(db *db.UserDB) GetSeasonalityInterface {
 }
 
 type seasonalityValue struct {
-	SeasonalityID   string `db:"id"`
-	SeasonalityName string `db:"seasonality_name"`
+	SeasonalityID   string `db:"id" binding:"required"`
+	SeasonalityName string `db:"seasonality_name" binding:"required"`
 }
 
 type seasonalityPrieValue struct {
-	SeasonalityNumberID       string          `db:"id"`
-	SeasonalityNumberOfPeople int             `db:"number_of_people"`
+	SeasonalityNumberID       string          `db:"id" binding:"required"`
+	SeasonalityNumberOfPeople int             `db:"number_of_people" binding:"required gte=1"`
 	SeasonalityPrice          decimal.Decimal `db:"price"`
 }
 

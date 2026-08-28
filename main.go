@@ -9,6 +9,7 @@ import (
 	"goapp/guest"
 	hotelindex "goapp/hotelIndex"
 	"goapp/myRedis"
+	"goapp/price"
 	"goapp/reservation"
 	"goapp/role"
 	"goapp/room"
@@ -139,6 +140,10 @@ func main() {
 	seasonalityHandler := seasonality.NewSeasonalityHandler(seasonalityRepository, roleHandler)
 	newApp.GET("/seasonality/:facilityID", seasonalityHandler.GetSeasonality)
 	newApp.GET("/seasonalityPrice/:facilityID/:seasonalityID", seasonalityHandler.GetSeasonalityPrice)
+
+	priceRepository := price.NewPriceRepository(&userDB)
+	priceHandler := price.NewPriceHandler(priceRepository, roleHandler)
+	newApp.GET("/priceCalender/:facilityID/:roomID/:month", priceHandler.GetSeasonalityByMonth)
 
 	newApp.Run(":" + port) // listen and serve on
 }

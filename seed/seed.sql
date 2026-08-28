@@ -29,3 +29,29 @@ SELECT g.id AS customer_id,g.customer_name,g.customer_age,g.customer_sex,g.custo
 INNER JOIN reservation_guest AS middle ON reservation.id = middle.reservation_id
 INNER JOIN guest AS g ON middle.guest_id = g.id
 WHERE reservation.facility_id = ?
+
+INSERT INTO `seasonality_of_date` (`seasonality_id`,`date`,`room_type_id`)
+    WITH RECURSIVE seq AS (
+        SELECT '2026-08-01' AS n
+        UNION ALL
+        SELECT DATE_ADD(n,INTERVAL 1 DAY) FROM seq WHERE n < '2026-12-31'
+    )
+    SELECT s.id,seq.n,rt.id FROM `facilities` f 
+    INNER JOIN `room` r ON f.id = r.facility_id
+    INNER JOIN `room_type` rt ON r.id = rt.room_id
+    INNER JOIN `seasonality` s ON f.id = s.facility_id
+    CROSS JOIN seq ORDER BY seq.n
+
+
+SELECT s.id,rt.id,s.id FROM `facilities` f 
+INNER JOIN `room` r ON f.id = r.facility_id
+INNER JOIN `room_type` rt ON r.id = rt.room_id
+INNER JOIN `seasonality` s ON f.id = s.facility_id
+
+SELECT r.room_name,rt.room_type_name,s.seasonality_name,snp.number_of_people,snp.price,sod.date FROM `facilities` f 
+INNER JOIN `room` r ON f.id = r.facility_id
+INNER JOIN `room_type` rt ON r.id = rt.room_id
+INNER JOIN `seasonality` s ON f.id = s.facility_id
+INNER JOIN `seasonality_number_of_people` snp ON s.id = snp.seasonality_id
+INNER JOIN `seasonality_of_date` sod ON s.id = sod.seasonality_id
+WHERE r.facility_id = ? AND room.id = ?;
