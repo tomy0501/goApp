@@ -48,7 +48,7 @@ func (r *priceRepository) GetSeasonalityByMonth(yearMonth string, facilityID str
 
 	sql := `
 	SELECT r.room_name,rt.room_type_name,s.seasonality_name,snp.number_of_people,snp.price,sod.date FROM facilities f 
-	INNER JOIN room_type rt ON rt._facility_id = f.id
+	INNER JOIN room_type rt ON rt.facility_id = f.id
 	INNER JOIN seasonality s ON f.id = s.facility_id
 	INNER JOIN seasonality_number_of_people snp ON s.id = snp.seasonality_id
 	INNER JOIN seasonality_of_date sod ON s.id = sod.seasonality_id
