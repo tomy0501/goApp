@@ -45,10 +45,15 @@ func (roomStruct *getRoomStruct) GetRoomAll(facilityID string) ([]*Room, error) 
 		if err != nil {
 			return nil, err
 		}
+		parsedRoomTypeID, err := uuid.FromBytes([]byte(row.RoomTypeID))
+		if err != nil {
+			return nil, err
+		}
 		room := &Room{
-			RoomID:   parsedRoomID.String(),
-			RoomName: row.RoomName,
-			RoomType: row.RoomType,
+			RoomID:     parsedRoomID.String(),
+			RoomName:   row.RoomName,
+			RoomType:   row.RoomType,
+			RoomTypeID: parsedRoomTypeID.String(),
 		}
 		Rooms = append(Rooms, room)
 	}
@@ -78,10 +83,15 @@ func (roomStruct getRoomStruct) GetRoomById(facilityID string, roomID string) (*
 	if err != nil {
 		return nil, err
 	}
+	parsedRoomTypeID, err := uuid.FromBytes([]byte(RoomVal.RoomTypeID))
+	if err != nil {
+		return nil, err
+	}
 	RoomAnser := &Room{
-		RoomID:   parsedRoomID2.String(),
-		RoomName: RoomVal.RoomName,
-		RoomType: RoomVal.RoomType,
+		RoomID:     parsedRoomID2.String(),
+		RoomName:   RoomVal.RoomName,
+		RoomType:   RoomVal.RoomType,
+		RoomTypeID: parsedRoomTypeID.String(),
 	}
 
 	return RoomAnser, nil
