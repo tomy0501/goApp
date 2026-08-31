@@ -30,7 +30,7 @@ func (roomStruct *getRoomStruct) GetRoomAll(facilityID string) ([]*Room, error) 
 	}
 	sql := `
 	SELECT room.id,room.room_name,room_type.room_type_name,room_type.id as room_type_id FROM room
-	INNER JOIN room_type ON room.id = room_type.room_id
+	INNER JOIN room_type ON room_type.id = room.room_type_id
 	WHERE room_type.facility_id = ?
 	`
 	var roomDatabases []roomDatabaseValue
@@ -71,7 +71,7 @@ func (roomStruct getRoomStruct) GetRoomById(facilityID string, roomID string) (*
 	}
 	sql := `
 	SELECT room.id,room.room_name,room_type.room_type_name,room_type.id as room_type_id FROM room
-	INNER JOIN room_type ON room.id = room_type.room_id
+	INNER JOIN room_type ON room_type.id = room.room_type_id
 	WHERE room_type.facility_id = ? AND room.id = ?
 	`
 	var RoomVal *roomDatabaseValue
