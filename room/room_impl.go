@@ -17,9 +17,10 @@ func NewGetRoomStruct(db *db.UserDB) GetRoomInterface {
 }
 
 type roomDatabaseValue struct {
-	RoomID   string `db:"id"`
-	RoomName string `db:"room_name"`
-	RoomType string `db:"room_type_name"`
+	RoomID     string `db:"id"`
+	RoomName   string `db:"room_name"`
+	RoomType   string `db:"room_type_name"`
+	RoomTypeID string `db:"room_type_id"`
 }
 
 func (roomStruct *getRoomStruct) GetRoomAll(facilityID string) ([]*Room, error) {
@@ -28,7 +29,7 @@ func (roomStruct *getRoomStruct) GetRoomAll(facilityID string) ([]*Room, error) 
 		return nil, err
 	}
 	sql := `
-	SELECT room.id,room.room_name,room_type.room_type_name FROM room
+	SELECT room.id,room.room_name,room_type.room_type_name,room_type.id as room_type_id FROM room
 	INNER JOIN room_type ON room.id = room_type.room_id
 	WHERE room.facility_id = ?
 	`
@@ -64,7 +65,7 @@ func (roomStruct getRoomStruct) GetRoomById(facilityID string, roomID string) (*
 		return nil, err
 	}
 	sql := `
-	SELECT room.id,room.room_name,room_type.room_type_name FROM room
+	SELECT room.id,room.room_name,room_type.room_type_name,room_type.id as room_type_id FROM room
 	INNER JOIN room_type ON room.id = room_type.room_id
 	WHERE room.facility_id = ? AND room.id = ?
 	`

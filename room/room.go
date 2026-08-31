@@ -9,9 +9,10 @@ import (
 )
 
 type Room struct {
-	RoomID   string `json:"RoomID" binding:"required"`
-	RoomName string `json:"RoomName" binding:"required"`
-	RoomType string `json:"RoomType"`
+	RoomID     string `json:"RoomID" binding:"required"`
+	RoomName   string `json:"RoomName" binding:"required"`
+	RoomTypeID string `json:"RoomTypeID" binding:"required,min=32,max=36"`
+	RoomType   string `json:"RoomType"`
 }
 
 type GetRoomInterface interface {
