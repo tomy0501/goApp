@@ -47,7 +47,7 @@ func (r *priceRepository) GetSeasonalityByMonth(yearMonth string, facilityID str
 	lastDay := time.Date(year, month+1, 1, 0, 0, 0, 0, time.Local).AddDate(0, 0, -1)
 
 	sql := `
-	SELECT r.room_name,rt.room_type_name,s.seasonality_name,snp.number_of_people,snp.price,sod.date FROM facilities f 
+	SELECT rt.room_type_name,s.seasonality_name,snp.number_of_people,snp.price,sod.date FROM facilities f 
 	INNER JOIN room_type rt ON rt.facility_id = f.id
 	INNER JOIN seasonality s ON f.id = s.facility_id
 	INNER JOIN seasonality_number_of_people snp ON s.id = snp.seasonality_id
@@ -102,7 +102,7 @@ func (r *priceRepository) GetSeasonalityByDate(date string, facilityID string, r
 	}
 
 	sql := `
-	SELECT r.room_name,rt.room_type_name,s.seasonality_name,snp.number_of_people,snp.price,sod.date FROM facilities f 
+	SELECT rt.room_type_name,s.seasonality_name,snp.number_of_people,snp.price,sod.date FROM facilities f 
 	INNER JOIN room_type rt ON  rt.facility_id = f.id
 	INNER JOIN seasonality s ON f.id = s.facility_id
 	INNER JOIN seasonality_number_of_people snp ON s.id = snp.seasonality_id
