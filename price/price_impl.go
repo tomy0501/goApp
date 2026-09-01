@@ -45,7 +45,7 @@ func (r *priceRepository) GetSeasonalityByMonth(yearMonth string, facilityID str
 	month := parsedTime.Month()
 
 	firstDay := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
-	lastDay := time.Date(year, month+1, 1, 0, 0, 0, 0, time.Local).AddDate(0, 0, -1)
+	lastDay := time.Date(year, month+1, 1, 0, 0, 0, 0, time.Local)
 	slog.Info("firstDay", "firstDay", firstDay)
 	slog.Info("lastDay", "lastDay", lastDay)
 	sql := `
