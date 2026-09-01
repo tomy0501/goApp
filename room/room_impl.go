@@ -1,6 +1,7 @@
 package room
 
 import (
+	"database/sql"
 	"goapp/db"
 
 	"github.com/google/uuid"
@@ -17,10 +18,12 @@ func NewGetRoomStruct(db *db.UserDB) GetRoomInterface {
 }
 
 type roomDatabaseValue struct {
-	RoomID     string `db:"id"`
-	RoomName   string `db:"room_name"`
-	RoomType   string `db:"room_type_name"`
-	RoomTypeID string `db:"room_type_id"`
+	RoomID          string         `db:"id"`
+	RoomName        string         `db:"room_name"`
+	RoomType        string         `db:"room_type_name"`
+	RoomTypeID      string         `db:"room_type_id"`
+	SeasonalityID   sql.NullString `db:"seasonality_id"`
+	SeasonalityName sql.NullString `db:"seasonality_name"`
 }
 
 func (roomStruct *getRoomStruct) GetRoomAll(facilityID string) ([]*Room, error) {
@@ -29,8 +32,9 @@ func (roomStruct *getRoomStruct) GetRoomAll(facilityID string) ([]*Room, error) 
 		return nil, err
 	}
 	sql := `
-	SELECT room.id,room.room_name,room_type.room_type_name,room_type.id as room_type_id FROM room
+	SELECT room.id,room.room_name,room_type.room_type_name,room_type.id as room_type_id,seasonality.id as seasonality_id,seasonality.name as seasonality_name FROM room
 	INNER JOIN room_type ON room_type.id = room.room_type_id
+	LEFT JOIN seasonality ON seasonality.id = room_type.seasonality_id
 	WHERE room_type.facility_id = ?
 	`
 	var roomDatabases []roomDatabaseValue
@@ -50,11 +54,20 @@ func (roomStruct *getRoomStruct) GetRoomAll(facilityID string) ([]*Room, error) 
 			return nil, err
 		}
 		room := &Room{
-			RoomID:     parsedRoomID.String(),
-			RoomName:   row.RoomName,
-			RoomType:   row.RoomType,
-			RoomTypeID: parsedRoomTypeID.String(),
+			RoomID:          parsedRoomID.String(),
+			RoomName:        row.RoomName,
+			RoomType:        row.RoomType,
+			RoomTypeID:      parsedRoomTypeID.String(),
+			SeasonalityID:   nil,
+			SeasonalityName: nil,
 		}
+		if row.SeasonalityID.Valid {
+			room.SeasonalityID = &row.SeasonalityID.String
+		}
+		if row.SeasonalityName.Valid {
+			room.SeasonalityName = &row.SeasonalityName.String
+		}
+
 		Rooms = append(Rooms, room)
 	}
 	return Rooms, nil
@@ -70,8 +83,9 @@ func (roomStruct getRoomStruct) GetRoomById(facilityID string, roomID string) (*
 		return nil, err
 	}
 	sql := `
-	SELECT room.id,room.room_name,room_type.room_type_name,room_type.id as room_type_id FROM room
+	SELECT room.id,room.room_name,room_type.room_type_name,room_type.id as room_type_id,seasonality.id as seasonality_id,seasonality.name as seasonality_name FROM room
 	INNER JOIN room_type ON room_type.id = room.room_type_id
+	LEFT JOIN seasonality ON seasonality.id = room_type.seasonality_id
 	WHERE room_type.facility_id = ? AND room.id = ?
 	`
 	var RoomVal *roomDatabaseValue
@@ -88,10 +102,18 @@ func (roomStruct getRoomStruct) GetRoomById(facilityID string, roomID string) (*
 		return nil, err
 	}
 	RoomAnser := &Room{
-		RoomID:     parsedRoomID2.String(),
-		RoomName:   RoomVal.RoomName,
-		RoomType:   RoomVal.RoomType,
-		RoomTypeID: parsedRoomTypeID.String(),
+		RoomID:          parsedRoomID2.String(),
+		RoomName:        RoomVal.RoomName,
+		RoomType:        RoomVal.RoomType,
+		RoomTypeID:      parsedRoomTypeID.String(),
+		SeasonalityID:   nil,
+		SeasonalityName: nil,
+	}
+	if RoomVal.SeasonalityID.Valid {
+		RoomAnser.SeasonalityID = &RoomVal.SeasonalityID.String
+	}
+	if RoomVal.SeasonalityName.Valid {
+		RoomAnser.SeasonalityName = &RoomVal.SeasonalityName.String
 	}
 
 	return RoomAnser, nil
