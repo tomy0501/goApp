@@ -20,6 +20,7 @@ func NewPriceRepository(db *db.UserDB) GetSeasonalityInterface {
 }
 
 type CombineSeasonalityData struct {
+	SeasonalityID   string          `db:"id"`
 	RoomName        string          `db:"room_name"`
 	RoomTypeName    string          `db:"room_type_name"`
 	SeasonalityName string          `db:"seasonality_name"`
