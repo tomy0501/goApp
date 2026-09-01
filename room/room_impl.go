@@ -32,7 +32,7 @@ func (roomStruct *getRoomStruct) GetRoomAll(facilityID string) ([]*Room, error) 
 		return nil, err
 	}
 	sql := `
-	SELECT room.id,room.room_name,room_type.room_type_name,room_type.id as room_type_id,seasonality.id as seasonality_id,seasonality.name as seasonality_name FROM room
+	SELECT room.id,room.room_name,room_type.room_type_name,room_type.id as room_type_id,seasonality.id as seasonality_id,seasonality.seasonality_name FROM room
 	INNER JOIN room_type ON room_type.id = room.room_type_id
 	LEFT JOIN seasonality ON seasonality.id = room_type.seasonality_id
 	WHERE room_type.facility_id = ?
@@ -83,7 +83,7 @@ func (roomStruct getRoomStruct) GetRoomById(facilityID string, roomID string) (*
 		return nil, err
 	}
 	sql := `
-	SELECT room.id,room.room_name,room_type.room_type_name,room_type.id as room_type_id,seasonality.id as seasonality_id,seasonality.name as seasonality_name FROM room
+	SELECT room.id,room.room_name,room_type.room_type_name,room_type.id as room_type_id,seasonality.id as seasonality_id,seasonality.seasonality_name FROM room
 	INNER JOIN room_type ON room_type.id = room.room_type_id
 	LEFT JOIN seasonality ON seasonality.id = room_type.seasonality_id
 	WHERE room_type.facility_id = ? AND room.id = ?
