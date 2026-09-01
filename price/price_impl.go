@@ -28,12 +28,12 @@ type CombineSeasonalityData struct {
 	Date            string          `db:"date"`
 }
 
-func (r *priceRepository) GetSeasonalityByMonth(yearMonth string, facilityID string, roomTypeID string) ([]*SeasonalityDate, error) {
+func (r *priceRepository) GetSeasonalityByMonth(yearMonth string, facilityID string, seasonalityID string) ([]*SeasonalityDate, error) {
 	parsedFacilityID, err := uuid.Parse(facilityID)
 	if err != nil {
 		return nil, err
 	}
-	parsedRoomTypeID, err := uuid.Parse(roomTypeID)
+	parsedSeasonalityID, err := uuid.Parse(seasonalityID)
 	if err != nil {
 		return nil, err
 	}
@@ -49,17 +49,15 @@ func (r *priceRepository) GetSeasonalityByMonth(yearMonth string, facilityID str
 	slog.Info("firstDay", "firstDay", firstDay)
 	slog.Info("lastDay", "lastDay", lastDay)
 	sql := `
-	SELECT rt.room_type_name,s.seasonality_name,snp.number_of_people,snp.price,sod.date FROM facilities f 
-	INNER JOIN room_type rt ON rt.facility_id = f.id
-	INNER JOIN seasonality s ON f.id = s.facility_id
+	SELECT s.id,s.seasonality_name,snp.number_of_people,snp.price,sod.date FROM seasonality s
 	INNER JOIN seasonality_number_of_people snp ON s.id = snp.seasonality_id
 	INNER JOIN seasonality_of_date sod ON s.id = sod.seasonality_id
-	WHERE f.id = ? AND rt.id = ? AND sod.date BETWEEN ? AND ? ORDER BY sod.date,snp.number_of_people
+	WHERE s.facility_id = ? AND s.id = ? AND sod.date BETWEEN ? AND ? ORDER BY sod.date,snp.number_of_people
 	`
 
 	var rawSeasonalityDatas []CombineSeasonalityData
 
-	err = r.db.UserDB.Select(&rawSeasonalityDatas, sql, parsedFacilityID[:], parsedRoomTypeID[:], firstDay, lastDay)
+	err = r.db.UserDB.Select(&rawSeasonalityDatas, sql, parsedFacilityID[:], parsedSeasonalityID[:], firstDay, lastDay)
 	if err != nil {
 		return nil, err
 	}
@@ -93,26 +91,24 @@ func (r *priceRepository) GetSeasonalityByMonth(yearMonth string, facilityID str
 	return seasonalityDates, nil
 }
 
-func (r *priceRepository) GetSeasonalityByDate(date string, facilityID string, roomTypeID string) (*SeasonalityDate, error) {
+func (r *priceRepository) GetSeasonalityByDate(date string, facilityID string, seasonalityID string) (*SeasonalityDate, error) {
 	parsedFacilityID, err := uuid.Parse(facilityID)
 	if err != nil {
 		return nil, err
 	}
-	parsedRoomTypeID, err := uuid.Parse(roomTypeID)
+	parsedSeasonalityID, err := uuid.Parse(seasonalityID)
 	if err != nil {
 		return nil, err
 	}
 
 	sql := `
-	SELECT rt.room_type_name,s.seasonality_name,snp.number_of_people,snp.price,sod.date FROM facilities f 
-	INNER JOIN room_type rt ON  rt.facility_id = f.id
-	INNER JOIN seasonality s ON f.id = s.facility_id
+	SELECT s.id,s.seasonality_name,snp.number_of_people,snp.price,sod.date FROM  seasonality s
 	INNER JOIN seasonality_number_of_people snp ON s.id = snp.seasonality_id
 	INNER JOIN seasonality_of_date sod ON s.id = sod.seasonality_id
-	WHERE f.id = ? AND rt.id = ? AND sod.date = ?
+	WHERE s.facility_id = ? AND s.id = ? AND sod.date = ?
 	`
 	var CombineSeasonality []CombineSeasonalityData
-	err = r.db.UserDB.Select(&CombineSeasonality, sql, parsedFacilityID[:], parsedRoomTypeID[:], date)
+	err = r.db.UserDB.Select(&CombineSeasonality, sql, parsedFacilityID[:], parsedSeasonalityID[:], date)
 	if err != nil {
 		return nil, err
 	}

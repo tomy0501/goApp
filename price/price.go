@@ -37,15 +37,15 @@ func NewPriceHandler(seasonalityIF GetSeasonalityInterface, roleIF role.RoleInte
 }
 
 type GetSeasonalityByMonthUri struct {
-	Month      string `uri:"month" binding:"datetime=2006-01"`
-	FacilityID string `uri:"facilityID" binding:"required,min=32,max=36"`
-	RoomTypeID string `uri:"roomTypeID" binding:"required,min=32,max=36"`
+	Month         string `uri:"month" binding:"datetime=2006-01"`
+	FacilityID    string `uri:"facilityID" binding:"required,min=32,max=36"`
+	SeasonalityID string `uri:"seasonalityID" binding:"required,min=32,max=36"`
 }
 
 type GetSeasonalityByDateUri struct {
-	Date       string `uri:"month" binding:"datetime=2006-01"`
-	FacilityID string `uri:"facilityID" binding:"required,min=32,max=36"`
-	RoomTypeID string `uri:"roomTypeID" binding:"required,min=32,max=36"`
+	Date          string `uri:"month" binding:"datetime=2006-01"`
+	FacilityID    string `uri:"facilityID" binding:"required,min=32,max=36"`
+	SeasonalityID string `uri:"seasonalityID" binding:"required,min=32,max=36"`
 }
 
 func (h *priceHandler) GetSeasonalityByMonth(c *gin.Context) {
@@ -73,7 +73,7 @@ func (h *priceHandler) GetSeasonalityByMonth(c *gin.Context) {
 		c.JSON(http.StatusForbidden, gin.H{"message": "you cannot access"})
 		return
 	}
-	prices, err := h.SeasonalityIF.GetSeasonalityByMonth(priceByMonthUri.Month, priceByMonthUri.FacilityID, priceByMonthUri.RoomTypeID)
+	prices, err := h.SeasonalityIF.GetSeasonalityByMonth(priceByMonthUri.Month, priceByMonthUri.FacilityID, priceByMonthUri.SeasonalityID)
 	if err != nil {
 		slog.Error("can't get seasonality", "error", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Internal server error"})

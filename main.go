@@ -143,7 +143,7 @@ func main() {
 
 	priceRepository := price.NewPriceRepository(&userDB)
 	priceHandler := price.NewPriceHandler(priceRepository, roleHandler)
-	newApp.GET("/priceCalender/:facilityID/:roomTypeID/:month", priceHandler.GetSeasonalityByMonth)
+	newApp.GET("/priceCalender/:facilityID/:seasonalityID/:month", priceHandler.GetSeasonalityByMonth)
 
 	newApp.Run(":" + port) // listen and serve on
 }

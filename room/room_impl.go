@@ -62,7 +62,12 @@ func (roomStruct *getRoomStruct) GetRoomAll(facilityID string) ([]*Room, error) 
 			SeasonalityName: nil,
 		}
 		if row.SeasonalityID.Valid {
-			room.SeasonalityID = &row.SeasonalityID.String
+			parsedSeasonalityID, err := uuid.FromBytes([]byte(row.SeasonalityID.String))
+			if err != nil {
+				return nil, err
+			}
+			seasonalityIDStr := parsedSeasonalityID.String()
+			room.SeasonalityID = &seasonalityIDStr
 		}
 		if row.SeasonalityName.Valid {
 			room.SeasonalityName = &row.SeasonalityName.String
@@ -110,7 +115,12 @@ func (roomStruct getRoomStruct) GetRoomById(facilityID string, roomID string) (*
 		SeasonalityName: nil,
 	}
 	if RoomVal.SeasonalityID.Valid {
-		RoomAnser.SeasonalityID = &RoomVal.SeasonalityID.String
+		parsedSeasonalityID, err := uuid.FromBytes([]byte(RoomVal.SeasonalityID.String))
+		if err != nil {
+			return nil, err
+		}
+		seasonalityIDStr := parsedSeasonalityID.String()
+		RoomAnser.SeasonalityID = &seasonalityIDStr
 	}
 	if RoomVal.SeasonalityName.Valid {
 		RoomAnser.SeasonalityName = &RoomVal.SeasonalityName.String
