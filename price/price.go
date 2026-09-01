@@ -11,7 +11,7 @@ import (
 
 type SeasonalityPrice struct {
 	Price          decimal.Decimal `json:"price" binding:"required gte=0"`
-	NumberOfPeople int             `json:"number_of_people" binding:"required gte=0"`
+	NumberOfPeople int             `json:"numberOfPeople" binding:"required gte=0"`
 }
 
 type SeasonalityDate struct {
