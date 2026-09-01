@@ -2,6 +2,7 @@ package price
 
 import (
 	"goapp/db"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -45,7 +46,8 @@ func (r *priceRepository) GetSeasonalityByMonth(yearMonth string, facilityID str
 
 	firstDay := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
 	lastDay := time.Date(year, month+1, 1, 0, 0, 0, 0, time.Local).AddDate(0, 0, -1)
-
+	slog.Info("firstDay", "firstDay", firstDay)
+	slog.Info("lastDay", "lastDay", lastDay)
 	sql := `
 	SELECT rt.room_type_name,s.seasonality_name,snp.number_of_people,snp.price,sod.date FROM facilities f 
 	INNER JOIN room_type rt ON rt.facility_id = f.id
