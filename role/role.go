@@ -92,3 +92,20 @@ func (r HotelRoles) CanAccessClean() bool {
 		return false
 	}
 }
+
+func (r HotelRoles) GetRoleName() string {
+	switch r {
+	case StatusOwner:
+		return "Owner"
+	case StatusManager:
+		return "Manager"
+	case StatusFront:
+		return "Front"
+	case StatusHousekeeping:
+		return "Housekeeping"
+	case StatusStaff:
+		return "Staff"
+	default:
+		return "Unknown"
+	}
+}

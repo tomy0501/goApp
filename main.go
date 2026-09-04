@@ -6,6 +6,7 @@ import (
 	"goapp/authorize"
 	"goapp/db"
 	"goapp/facility"
+	facilityapi "goapp/facilityAPI"
 	"goapp/guest"
 	hotelindex "goapp/hotelIndex"
 	"goapp/myRedis"
@@ -144,6 +145,17 @@ func main() {
 	priceRepository := price.NewPriceRepository(&userDB)
 	priceHandler := price.NewPriceHandler(priceRepository, roleHandler)
 	newApp.GET("/priceCalender/:facilityID/:seasonalityID/:month", priceHandler.GetSeasonalityByMonth)
+
+	stockPemKey, err := os.ReadFile("stock_private.pem")
+	if err != nil {
+		log.Fatalf("Error reading private key: %v", err)
+	}
+	stockPrivateKey, err := jwt.ParseRSAPrivateKeyFromPEM(stockPemKey)
+	if err != nil {
+		log.Fatalf("Error parsing private key: %v", err)
+	}
+	stockRoleHandler := facilityapi.NewFacilityAPIHandler(roleHandler, *stockPrivateKey)
+	newApp.GET("/facilityAuthorization", stockRoleHandler.Get)
 
 	newApp.Run(":" + port) // listen and serve on
 }
