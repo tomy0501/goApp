@@ -21,7 +21,9 @@ var skippaths = map[string]bool{
 
 func CheckAccessToken(h AuthHandlerInterface) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		slog.Info("check path", "path", c.Request)
 		if skippaths[c.Request.URL.Path] {
+			slog.Info("skip access token because path is skiptarget", "path", c.Request.URL)
 			c.Next()
 			return
 		}
