@@ -15,8 +15,16 @@ type CustomClaims struct {
 	Role     string `json:"role"`
 }
 
+var skippaths = map[string]bool{
+	"/facilityAPI": true,
+}
+
 func CheckAccessToken(h AuthHandlerInterface) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if skippaths[c.Request.URL.Path] {
+			c.Next()
+			return
+		}
 		accessToken, err := c.Cookie("accessToken")
 		if err != nil {
 			slog.Error("not found accessToken")

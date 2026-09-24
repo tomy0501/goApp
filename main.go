@@ -155,7 +155,7 @@ func main() {
 		log.Fatalf("Error parsing private key: %v", err)
 	}
 	stockRoleHandler := facilityapi.NewFacilityAPIHandler(roleHandler, *stockPrivateKey)
-	newApp.GET("/facilityAuthorization", stockRoleHandler.Get)
+	newApp.GET("/facilityAPI/facilityAuthorization", stockRoleHandler.Get)
 
 	newApp.Run(":" + port) // listen and serve on
 }
