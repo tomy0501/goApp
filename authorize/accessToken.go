@@ -29,10 +29,20 @@ func CheckAccessToken(h AuthHandlerInterface) gin.HandlerFunc {
 		}
 		accessToken, err := c.Cookie("accessToken")
 		if err != nil {
-			slog.Error("not found accessToken")
-			c.JSON(http.StatusUnauthorized, gin.H{"message": "accessToken is invalid", "code": "TOKEN_INVALID"})
-			c.Abort()
-			return
+			if errors.Is(http.ErrNoCookie, err) {
+				accessToken = c.Request.Header["Authorization"][0]
+				if accessToken == "" {
+					slog.Error("cannnot found access token")
+					c.JSON(http.StatusUnauthorized, gin.H{"message": "accessToken is invalid", "code": "TOKEN_INVALID"})
+					c.Abort()
+					return
+				}
+			} else {
+				slog.Error("unknown error happen", "error", err)
+				c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error", "code": "INTERNAL_SERVER_ERROR"})
+				c.Abort()
+				return
+			}
 		}
 		var claims CustomClaims
 		token, err := jwt.ParseWithClaims(accessToken, &claims, func(tokenString *jwt.Token) (interface{}, error) {
