@@ -3,6 +3,7 @@ package facilityapi
 import (
 	"crypto/rsa"
 	"goapp/role"
+	"log/slog"
 	"os"
 	"time"
 
@@ -31,6 +32,7 @@ func (h *facilityAPIHandler) Get(g *gin.Context) {
 	// Implementation for getting facility authorization
 	userID := g.Request.Header.Get("userID")
 	facilityID := g.Request.Header.Get("facilityID")
+	slog.Info("start facility stock authorization")
 	if userID == "" || facilityID == "" {
 		g.JSON(400, gin.H{"error": "userID and facilityID are required"})
 		return
