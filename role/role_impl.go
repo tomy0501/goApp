@@ -51,6 +51,7 @@ func (h *roleHandler) GetUserRoles(userID string) ([]Roles, error) {
 		return roles, nil
 	} else {
 		if rolls, ok := roleInRedis["userRoles"]; ok {
+			slog.Info("check roll", "roll", rolls)
 			if paserdRoll, isRole := rolls.([]Roles); isRole {
 				return paserdRoll, nil
 			}
