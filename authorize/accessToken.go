@@ -30,13 +30,15 @@ func CheckAccessToken(h AuthHandlerInterface) gin.HandlerFunc {
 		accessToken, err := c.Cookie("accessToken")
 		if err != nil {
 			if errors.Is(http.ErrNoCookie, err) {
-				accessToken = c.Request.Header["Authorization"][0]
-				if accessToken == "" {
-					slog.Error("cannnot found access token")
-					c.JSON(http.StatusUnauthorized, gin.H{"message": "accessToken is invalid", "code": "TOKEN_INVALID"})
+				if accessTokenArray, ok := c.Request.Header["Authorization"]; ok {
+					accessToken = accessTokenArray[0]
+				} else {
+					slog.Error("not found access token")
+					c.JSON(http.StatusUnauthorized, gin.H{"message": "internal server error", "code": "TOKEN_INVALID"})
 					c.Abort()
 					return
 				}
+
 			} else {
 				slog.Error("unknown error happen", "error", err)
 				c.JSON(http.StatusInternalServerError, gin.H{"message": "internal server error", "code": "INTERNAL_SERVER_ERROR"})
