@@ -2,9 +2,10 @@ package facilityapi
 
 import (
 	"crypto/rsa"
+	"encoding/json"
 	"goapp/role"
 	"log/slog"
-	"os"
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -30,26 +31,22 @@ func NewFacilityAPIHandler(roleIF role.RoleInterface, stockPemKey rsa.PrivateKey
 
 func (h *facilityAPIHandler) Get(g *gin.Context) {
 	// Implementation for getting facility authorization
-	userID := g.Request.Header.Get("userID")
-	facilityID := g.Request.Header.Get("facilityID")
-	slog.Info("start facility stock authorization")
-	if userID == "" || facilityID == "" {
-		g.JSON(400, gin.H{"error": "userID and facilityID are required"})
+	userID := g.GetString("userID")
+	if userID == "" {
+		slog.Error("can't Get UserID")
+		g.JSON(http.StatusUnauthorized, gin.H{"message": "please login again"})
 		return
 	}
-	APIKey := g.Request.Header.Get("APIKey")
-	if APIKey == "" {
-		g.JSON(400, gin.H{"error": "APIKey is required"})
-		return
-	}
-	APIKeyFromEnv := os.Getenv("AUTHORIZATION_API_KEY")
-	if APIKey != APIKeyFromEnv {
-		g.JSON(401, gin.H{"error": "Invalid APIKey"})
-		return
-	}
-	role, err := h.roleIF.GetUserRoleByFacility(userID, facilityID)
+
+	roles, err := h.roleIF.GetUserRoles(userID)
 	if err != nil {
 		g.JSON(500, gin.H{"error": "Failed to get role"})
+		return
+	}
+	jsonRoles, err := json.Marshal(roles)
+	if err != nil {
+		slog.Error("cannnot marshaling json", "error", err)
+		g.JSON(http.StatusInternalServerError, gin.H{"error": "INTERNAL_SERVER_ERROR"})
 		return
 	}
 	facilityRoleJWT, err := jwt.NewWithClaims(jwt.SigningMethodRS256, FacilityAPIJWT{
@@ -59,7 +56,7 @@ func (h *facilityAPIHandler) Get(g *gin.Context) {
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			Issuer:    "authorizationService",
 		},
-		Role: role.Role.GetRoleName(),
+		Role: string(jsonRoles),
 	}).SignedString(&h.stockPemKey)
 	if err != nil {
 		g.JSON(500, gin.H{"error": "Failed to generate JWT"})
