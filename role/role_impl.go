@@ -59,6 +59,7 @@ func (h *roleHandler) GetUserRoles(userID string) ([]Roles, error) {
 					slog.Info("range check", "item", item)
 					itemMap, ok := item.(map[string]any)
 					if !ok {
+						slog.Error("cast to role is failed", "itemMap", itemMap)
 						return nil, errors.New("can not map is role type itemmap")
 					}
 					hotelID, _ := itemMap["HotelID"].(string)
