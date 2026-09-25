@@ -59,6 +59,7 @@ func (h *facilityAPIHandler) Get(g *gin.Context) {
 		Role: string(jsonRoles),
 	}).SignedString(&h.stockPemKey)
 	if err != nil {
+		slog.Error("failed to change to claim", "error", err)
 		g.JSON(500, gin.H{"error": "Failed to generate JWT"})
 		return
 	}
