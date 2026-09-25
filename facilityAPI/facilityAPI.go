@@ -63,5 +63,6 @@ func (h *facilityAPIHandler) Get(g *gin.Context) {
 		g.JSON(500, gin.H{"error": "Failed to generate JWT"})
 		return
 	}
-	g.JSON(200, gin.H{"facilityRoleJWT": facilityRoleJWT})
+	g.Header("X-AuthorizationToken", facilityRoleJWT)
+	g.JSON(200, gin.H{"message": "ok"})
 }
