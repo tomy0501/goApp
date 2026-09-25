@@ -54,7 +54,9 @@ func (h *roleHandler) GetUserRoles(userID string) ([]Roles, error) {
 			slog.Info("check roll", "roll", rolls)
 			if rawSlice, isAny := rolls.([]any); isAny {
 				var roles []Roles
+				slog.Info("slice change ok")
 				for _, item := range rawSlice {
+					slog.Info("range check", "item", item)
 					itemMap, ok := item.(map[string]any)
 					if !ok {
 						return nil, errors.New("can not map is role type itemmap")
