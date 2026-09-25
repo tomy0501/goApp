@@ -70,6 +70,7 @@ func (h *roleHandler) GetUserRoles(userID string) ([]Roles, error) {
 					}
 					roles = append(roles, role)
 				}
+				slog.Info("roleCheck", "roles", roles)
 				return roles, nil
 			}
 		}
