@@ -64,5 +64,5 @@ func (h *facilityAPIHandler) Get(g *gin.Context) {
 		return
 	}
 	g.Header("X-AuthorizationToken", facilityRoleJWT)
-	g.JSON(200, gin.H{"message": "ok"})
+	g.JSON(200, gin.H{"message": "ok2"})
 }
