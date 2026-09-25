@@ -52,8 +52,22 @@ func (h *roleHandler) GetUserRoles(userID string) ([]Roles, error) {
 	} else {
 		if rolls, ok := roleInRedis["userRoles"]; ok {
 			slog.Info("check roll", "roll", rolls)
-			if paserdRoll, isRole := rolls.([]Roles); isRole {
-				return paserdRoll, nil
+			if rawSlice, isAny := rolls.([]any); isAny {
+				var roles []Roles
+				for _, item := range rawSlice {
+					itemMap, ok := item.(map[string]any)
+					if !ok {
+						return nil, errors.New("can not map is role type itemmap")
+					}
+					hotelID, _ := itemMap["HotelID"].(string)
+					roleStr, _ := itemMap["Role"].(string)
+					role := Roles{
+						HotelID: hotelID,
+						Role:    HotelRoles(roleStr),
+					}
+					roles = append(roles, role)
+				}
+				return roles, nil
 			}
 		}
 		errors := errors.New("Role in redis is invalid please check")
