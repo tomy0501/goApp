@@ -14,7 +14,7 @@ import (
 
 type FacilityAPIJWT struct {
 	jwt.RegisteredClaims
-	Role string `json:"role"`
+	UserFacilities  string `json:"userFacilities"`
 }
 
 type facilityAPIHandler struct {
@@ -56,7 +56,7 @@ func (h *facilityAPIHandler) Get(g *gin.Context) {
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			Issuer:    "authorizationService",
 		},
-		Role: string(jsonRoles),
+		UserFacilities string(jsonRoles),
 	}).SignedString(&h.stockPemKey)
 	if err != nil {
 		slog.Error("failed to change to claim", "error", err)
