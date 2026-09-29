@@ -2,7 +2,6 @@ package facilityapi
 
 import (
 	"crypto/rsa"
-	"encoding/json"
 	"goapp/role"
 	"log/slog"
 	"net/http"
@@ -14,7 +13,7 @@ import (
 
 type FacilityAPIJWT struct {
 	jwt.RegisteredClaims
-	UserFacilities string `json:"userFacilities"`
+	UserFacilities []role.Roles `json:"userFacilities"`
 }
 
 type facilityAPIHandler struct {
@@ -43,12 +42,7 @@ func (h *facilityAPIHandler) Get(g *gin.Context) {
 		g.JSON(500, gin.H{"error": "Failed to get role"})
 		return
 	}
-	jsonRoles, err := json.Marshal(roles)
-	if err != nil {
-		slog.Error("cannnot marshaling json", "error", err)
-		g.JSON(http.StatusInternalServerError, gin.H{"error": "INTERNAL_SERVER_ERROR"})
-		return
-	}
+
 	facilityRoleJWT, err := jwt.NewWithClaims(jwt.SigningMethodRS256, FacilityAPIJWT{
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   userID,
@@ -56,7 +50,7 @@ func (h *facilityAPIHandler) Get(g *gin.Context) {
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			Issuer:    "authorizationService",
 		},
-		UserFacilities: string(jsonRoles),
+		UserFacilities: roles,
 	}).SignedString(&h.stockPemKey)
 	if err != nil {
 		slog.Error("failed to change to claim", "error", err)
