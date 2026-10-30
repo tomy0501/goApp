@@ -52,7 +52,7 @@ func (mysql *reservationRepository) GetAllReservation(facilityID string) ([]*Res
 		FROM reservation INNER JOIN reservation_guest ON reservation.id = reservation_guest.reservation_id
 		INNER JOIN guest ON reservation_guest.guest_id = guest.id
 		INNER JOIN room ON reservation_guest.room_id = room.id
-		INNER JOIN room_type ON room.id = room_type.room_id
+		INNER JOIN room_type ON room.room_type_id = room_type.id
 		WHERE reservation.facility_id = ?
 		ORDER BY reservation_id
 		`, parsedFacilityID[:])
